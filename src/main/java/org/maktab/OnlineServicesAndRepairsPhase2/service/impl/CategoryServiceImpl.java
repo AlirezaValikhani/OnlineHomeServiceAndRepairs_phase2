@@ -1,7 +1,6 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
-import org.maktab.OnlineServicesAndRepairsPhase2.repository.impl.CategoryRepositoryImp;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CategoryRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CategoryService;
 import org.springframework.stereotype.Service;
