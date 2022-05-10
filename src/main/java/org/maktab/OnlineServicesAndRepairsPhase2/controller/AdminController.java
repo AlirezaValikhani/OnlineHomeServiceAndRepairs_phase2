@@ -1,0 +1,22 @@
+package org.maktab.OnlineServicesAndRepairsPhase2.controller;
+
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Admin;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
+import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.AdminServiceImpl;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/admin")
+public class AdminController {
+    private final AdminServiceImpl adminService;
+
+    public AdminController(AdminServiceImpl adminService) {
+        this.adminService = adminService;
+    }
+
+    @PutMapping("/updatePassword")
+    public ResponseEntity<Admin> save(@RequestBody String password){
+        return ResponseEntity.ok(adminService.changeAdminPassword(password));
+    }
+}
