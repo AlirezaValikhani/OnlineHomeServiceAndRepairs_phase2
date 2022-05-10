@@ -1,7 +1,6 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Offer;
-import org.maktab.OnlineServicesAndRepairsPhase2.repository.impl.OfferRepositoryImp;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.OfferRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.OfferService;
 import org.springframework.stereotype.Service;
