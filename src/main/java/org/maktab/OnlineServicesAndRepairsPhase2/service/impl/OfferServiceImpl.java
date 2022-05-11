@@ -26,4 +26,9 @@ public class OfferServiceImpl implements OfferService {
     public Offer getById(Long id) {
         return offerRepository.getById(id);
     }
+
+    @Override
+    public Offer save(Offer offer) {
+        return offerRepository.save(offer);
+    }
 }

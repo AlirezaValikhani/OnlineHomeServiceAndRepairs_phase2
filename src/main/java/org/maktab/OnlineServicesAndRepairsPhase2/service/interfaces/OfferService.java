@@ -7,4 +7,5 @@ import java.util.List;
 public interface OfferService {
     List<Offer> findByOrderId(Long orderId);
     Offer getById(Long id);
+    Offer save(Offer offer);
 }
