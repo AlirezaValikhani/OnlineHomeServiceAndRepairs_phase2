@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @Transactional
 public class OrderServiceImpl implements OrderService {
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
@@ -25,5 +25,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> loadByExpertSuggestionStatus() {
         return orderRepository.loadByExpertSuggestionStatus();
+    }
+
+    @Override
+    public Order getById(Long id) {
+        return orderRepository.getById(id);
+    }
+
+    @Override
+    public Order save(Order order) {
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public List<Order> getByServiceNameAndCityAndStatus(String serviceName,String city) {
+        return orderRepository.getByServiceNameAndCityAndStatus(serviceName,city);
     }
 }

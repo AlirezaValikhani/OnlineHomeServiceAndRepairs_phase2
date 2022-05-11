@@ -19,23 +19,22 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public User findByNationalCode(String userName) {
+    public Admin findByNationalCode(String userName) {
         return adminRepository.findByNationalCode(userName);
     }
 
     @Override
-    public void addAdminByDefault() {
+    public Admin addAdminByDefault() {
         firstName = "admin";
         lastName = "admin";
         nationalCode = "admin";
         password = "admin";
         Admin admin = new Admin(firstName,lastName,nationalCode,password);
-        Admin returnedAdmin = adminRepository.save(admin);
+        return adminRepository.save(admin);
     }
 
     @Override
-    public Admin changeAdminPassword(String password) {
-        Admin admin = new Admin(password);
-        return adminRepository.save(admin);
+    public Admin changeAdminPassword(String nationalCode,String password) {
+        return adminRepository.update(password,nationalCode);
     }
 }

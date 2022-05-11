@@ -32,7 +32,7 @@ public class Expert extends User {
             joinColumns = { @JoinColumn(name = "expert_id")},
             inverseJoinColumns = { @JoinColumn(name = "service_id")}
     )
-    private Set<Service> services;
+    private Set<Specialty> services;
     @OneToMany(mappedBy = "expert")
     private Set<Comment> comments;
 
@@ -40,11 +40,18 @@ public class Expert extends User {
         super(password);
     }
 
-    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Timestamp registrationDate, Integer credit, Double balance, UserStatus userStatus, byte[] image, String city, Set<Service> services) {
+    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Timestamp registrationDate, Integer credit, Double balance, UserStatus userStatus, byte[] image, String city) {
         super(firstName, lastName, emailAddress, nationalCode, password, registrationDate, credit, balance, userStatus);
         this.image = image;
         this.city = city;
-        this.services = services;
+    }
+
+    public Expert(Long aLong, String password) {
+        super(aLong, password);
+    }
+
+    public Expert(Long aLong) {
+        super(aLong);
     }
 
     @Override

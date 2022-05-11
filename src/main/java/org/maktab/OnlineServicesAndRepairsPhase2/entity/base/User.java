@@ -18,15 +18,13 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity<Long> {
-    @Column(nullable = false)
     private String firstName;
-    @Column(nullable = false)
     private String lastName;
     @Column(unique = true)
     private String emailAddress;
-    @Column(nullable = false,unique = true)
+    @Column(unique = true)
     private String nationalCode;
-    @Column(nullable = false,length = 8)
+    @Column(length = 8)
     private String password;
     private Timestamp registrationDate;
     private Integer credit;
@@ -61,6 +59,15 @@ public class User extends BaseEntity<Long> {
         this.lastName = lastName;
         this.nationalCode = nationalCode;
         this.password = password;
+    }
+
+    public User(Long aLong, String password) {
+        super(aLong);
+        this.password = password;
+    }
+
+    public User(Long aLong) {
+        super(aLong);
     }
 
     @Override

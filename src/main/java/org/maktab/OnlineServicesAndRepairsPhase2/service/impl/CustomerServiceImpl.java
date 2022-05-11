@@ -3,6 +3,7 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -24,5 +25,18 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer findByEmailAddress(String email) {
         return customerRepository.findByEmailAddress(email);
+    }
+
+    @Override
+    public Customer save(Customer customer) {
+        if(customerRepository.findByNationalCode(customer.getNationalCode()) != null){
+            return null;
+        }else
+        return customerRepository.save(customer);
+    }
+
+    @Override
+    public Customer getById(Long id) {
+        return customerRepository.getById(id);
     }
 }

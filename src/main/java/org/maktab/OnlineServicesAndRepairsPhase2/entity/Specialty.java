@@ -14,7 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-public class Service extends BaseEntity<Long> {
+public class Specialty extends BaseEntity<Long> {
     @Column(nullable = false,unique = true)
     private String name;
     private Double basePrice;
@@ -26,17 +26,17 @@ public class Service extends BaseEntity<Long> {
     @ManyToMany(mappedBy = "services")
     private Set<Expert> experts;
 
-    public Service(String name, Double basePrice, String description) {
+    public Specialty(String name, Double basePrice, String description) {
         this.name = name;
         this.basePrice = basePrice;
         this.description = description;
     }
 
-    public Service(String name) {
+    public Specialty(String name) {
         this.name = name;
     }
 
-    public Service(Long aLong) {
+    public Specialty(Long aLong) {
         super(aLong);
     }
 

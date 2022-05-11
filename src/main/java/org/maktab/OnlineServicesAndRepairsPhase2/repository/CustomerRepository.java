@@ -9,6 +9,7 @@ import java.util.List;
 public interface CustomerRepository extends CrudRepository<Customer,Long> {
     Customer findByNationalCode(String nationalCode);
     Customer findByEmailAddress(String email);
+    Customer getById(Long id);
     /*List<Customer> gridSearch(
             String firstName,
             String lastName,

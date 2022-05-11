@@ -18,7 +18,7 @@ public class Category extends BaseEntity<Long> {
     @OneToOne
     private Category superCategory;
     @OneToMany(mappedBy = "category",fetch = FetchType.EAGER)
-    private Set<Service> services;
+    private Set<Specialty> specialties;
 
     public Category(String name, Category superCategory) {
         this.name = name;
@@ -34,7 +34,7 @@ public class Category extends BaseEntity<Long> {
         return "Category { " + super.toString() +
                 ", name = '" + name + '\'' +
                 ", superCategory = " + superCategory +
-                ", services = " + services +
+                ", services = " + specialties +
                 '}';
     }
 }

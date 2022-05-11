@@ -33,11 +33,11 @@ public class Order extends BaseEntity<Long> {
     @ManyToOne
     private Customer customer;
     @ManyToOne
-    private Service service;
+    private Specialty service;
     @OneToMany(mappedBy = "order")
     private Set<Offer> offers;
 
-    public Order(Double bidPriceOrder, String jobDescription, String address, Timestamp orderRegistrationDate, Timestamp orderExecutionDate, OrderStatus orderStatus, Customer customer, Service service) {
+    public Order(Double bidPriceOrder, String jobDescription, String address, Timestamp orderRegistrationDate, Timestamp orderExecutionDate, OrderStatus orderStatus, Customer customer, Specialty service) {
         this.bidPriceOrder = bidPriceOrder;
         this.jobDescription = jobDescription;
         this.address = address;
