@@ -20,11 +20,8 @@ import java.util.Set;
 public class Order extends BaseEntity<Long> {
     private Double bidPriceOrder;
     private String jobDescription;
-    @Column(nullable = false)
     private String address;
-    @Column(nullable = false)
     private Timestamp orderRegistrationDate;
-    @Column(nullable = false)
     private Timestamp orderExecutionDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;

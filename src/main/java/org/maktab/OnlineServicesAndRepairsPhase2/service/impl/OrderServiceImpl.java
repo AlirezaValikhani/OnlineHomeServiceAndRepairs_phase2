@@ -24,7 +24,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> loadByExpertSuggestionStatus() {
-        return orderRepository.loadByExpertSuggestionStatus();
+        return orderRepository.getByExpertSuggestionStatus();
     }
 
     @Override

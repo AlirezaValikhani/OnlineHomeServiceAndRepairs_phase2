@@ -15,11 +15,11 @@ import java.util.Set;
 @Setter
 @Entity
 public class Specialty extends BaseEntity<Long> {
-    @Column(nullable = false,unique = true)
+    @Column(unique = true)
     private String name;
     private Double basePrice;
     private String description;
-    @OneToMany(mappedBy = "service")////mistake
+    @OneToMany(mappedBy = "service")
     private Set<Order> orders;
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;

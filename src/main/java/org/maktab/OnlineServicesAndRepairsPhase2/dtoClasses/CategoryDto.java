@@ -11,5 +11,5 @@ import lombok.Setter;
 @Setter
 public class CategoryDto {
     private String name;
-    private CategoryDto superCategoryDto;
+    private Long superCategoryId;
 }

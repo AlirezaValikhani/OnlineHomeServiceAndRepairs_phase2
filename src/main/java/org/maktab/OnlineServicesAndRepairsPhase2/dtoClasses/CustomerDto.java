@@ -28,6 +28,6 @@ public class CustomerDto {
 
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
-    private OrderDto orderDto;
-    private CommentDto commentDto;
+    private Long orderId;
+    private Long commentId;
 }

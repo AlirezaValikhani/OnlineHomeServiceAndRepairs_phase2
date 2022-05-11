@@ -13,5 +13,5 @@ public class SpecialtyDto {
     private String name;
     private Double basePrice;
     private String description;
-    private CategoryDto categoryDto;
+    private Long categoryId;
 }

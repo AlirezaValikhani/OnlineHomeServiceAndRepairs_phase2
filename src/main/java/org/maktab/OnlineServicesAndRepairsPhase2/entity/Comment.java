@@ -17,7 +17,6 @@ import javax.persistence.ManyToOne;
 @Setter
 @Entity
 public class Comment extends BaseEntity<Long> {
-    @Column(nullable = false)
     private String comment;
     @ManyToOne
     private Customer customer;

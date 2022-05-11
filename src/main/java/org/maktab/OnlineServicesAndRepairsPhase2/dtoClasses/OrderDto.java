@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 
 import javax.persistence.EnumType;
@@ -24,6 +23,7 @@ public class OrderDto {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
-    private ExpertDto expertDto;
-    private CustomerDto customerDto;
+    private Long expertId;
+    private Long customerId;
+    private Long specialtyId;
 }

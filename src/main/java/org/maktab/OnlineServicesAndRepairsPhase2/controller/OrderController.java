@@ -22,7 +22,7 @@ public class OrderController {
     private final CustomerServiceImpl customerService;
     private final SpecialtyServiceImpl specialtyService;
 
-    public OrderController(OrderServiceImpl orderService, CustomerServiceImpl customerService,SpecialtyServiceImpl specialtyService) {
+    public OrderController(OrderServiceImpl orderService, CustomerServiceImpl customerService, SpecialtyServiceImpl specialtyService) {
         this.orderService = orderService;
         this.customerService = customerService;
         this.specialtyService = specialtyService;
@@ -30,16 +30,16 @@ public class OrderController {
 
     @PostMapping("/save")
     public ResponseEntity<Order> save(@RequestBody OrderDto orderDto) {
+        Customer customer = customerService.getById(orderDto.getCustomerId());
+        Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
         DozerBeanMapper mapper = new DozerBeanMapper();
         Order order = mapper.map(orderDto, Order.class);
-        if (order != null){
+        if (order != null) {
             order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SUGGESTION);
-            Customer customer = customerService.getById(order.getCustomer().getId());
             order.setCustomer(customer);
-            Specialty specialty = specialtyService.getById(order.getService().getId());
             order.setService(specialty);
             return ResponseEntity.ok(orderService.save(order));
-        }else return ResponseEntity.notFound().build();
+        } else return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/getOrderByServiceNameAndCity")
@@ -49,7 +49,7 @@ public class OrderController {
         List<Order> orders = orderService.getByServiceNameAndCityAndStatus(order.getService().getName(),
                 order.getAddress());
         if (orders != null)
-         return ResponseEntity.ok(orders);
+            return ResponseEntity.ok(orders);
         else return ResponseEntity.notFound().build();
     }
 
@@ -62,5 +62,10 @@ public class OrderController {
             return ResponseEntity.ok(returnedOrder);
         else
             return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/getByExpertSuggestion")
+    public ResponseEntity<List<Order>> getByExpertSuggestion(){
+        return ResponseEntity.ok(orderService.loadByExpertSuggestionStatus());
     }
 }

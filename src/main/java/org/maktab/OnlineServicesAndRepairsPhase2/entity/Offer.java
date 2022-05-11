@@ -18,13 +18,9 @@ import java.sql.Timestamp;
 @Setter
 @Entity
 public class Offer extends BaseEntity<Long> {
-    @Column(nullable = false)
     private Timestamp dateAndTimeOfBidSubmission;
-    @Column(nullable = false)
     private Double bidPriceOffer;
-    @Column(nullable = false)
     private String durationOfWork;
-    @Column(nullable = false)
     private Timestamp startTime;
     @ManyToOne(fetch = FetchType.EAGER)
     private Order order;

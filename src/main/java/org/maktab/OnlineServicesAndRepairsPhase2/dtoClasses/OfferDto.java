@@ -17,6 +17,6 @@ public class OfferDto {
     private Double bidPriceOffer;
     private String durationOfWork;
     private Timestamp startTime;
-    private OrderDto orderDto;
-    private ExpertDto expertDto;
+    private Long orderId;
+    private Long expertId;
 }

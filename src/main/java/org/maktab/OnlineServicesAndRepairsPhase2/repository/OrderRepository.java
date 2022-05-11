@@ -13,7 +13,7 @@ public interface OrderRepository extends CrudRepository<Order,Long> {
     List<Order> findByCustomerId(Long customerId);
 
     @Query("select o from Order o where o.orderStatus = 'WAITING_FOR_EXPERT_SUGGESTION'")
-    List<Order> loadByExpertSuggestionStatus();
+    List<Order> getByExpertSuggestionStatus();
 
     @Query("select o from Order o where o.id = :id")
     Order getById(@Param("id") Long id);
