@@ -10,6 +10,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OfferServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OrderServiceImpl;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,7 @@ public class OfferController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Offer> save(@RequestBody OfferDto offerDto){
+    public ResponseEntity<OfferDto> save(@RequestBody OfferDto offerDto){
         Order order = orderService.getById(offerDto.getOrderId());
         Expert expert = expertService.getById(offerDto.getExpertId());
         DozerBeanMapper mapper = new DozerBeanMapper();
@@ -39,7 +40,10 @@ public class OfferController {
             order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SELECTION);
             offer.setOrder(order);
             offer.setExpert(expert);
-            return ResponseEntity.ok(offerService.save(offer));
+            Offer returnedOffer = offerService.save(offer);
+            ModelMapper modelMapper = new ModelMapper();
+            OfferDto returnedOfferDto = modelMapper.map(returnedOffer, OfferDto.class);
+            return ResponseEntity.ok(returnedOfferDto);
         } else return ResponseEntity.notFound().build();
     }
 }

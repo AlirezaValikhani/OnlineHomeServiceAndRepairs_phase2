@@ -2,13 +2,16 @@ package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OfferDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,42 +24,55 @@ public class ExpertController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Expert> save(@RequestBody ExpertDto expertDto){
+    public ResponseEntity<ExpertDto> save(@RequestBody ExpertDto expertDto){
         DozerBeanMapper mapper = new DozerBeanMapper();
         Expert expert = mapper.map(expertDto, Expert.class);
         Expert returnedExpert = expertService.save(expert);
-        if (returnedExpert != null)
-            return ResponseEntity.ok(returnedExpert);
+        ModelMapper modelMapper = new ModelMapper();
+        ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
+        if (returnedExpertDto != null)
+            return ResponseEntity.ok(returnedExpertDto);
         else return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/updatePassword")
-    public ResponseEntity<Expert> changePassword(@RequestBody ExpertDto expertDto){
+    public ResponseEntity<ExpertDto> changePassword(@RequestBody ExpertDto expertDto){
         DozerBeanMapper mapper = new DozerBeanMapper();
         Expert expert = mapper.map(expertDto, Expert.class);
         Expert returnedExpert = expertService.changePassword(expert);
-        if (returnedExpert != null){
-            return ResponseEntity.ok(returnedExpert);
+        ModelMapper modelMapper = new ModelMapper();
+        ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
+        if (returnedExpertDto != null){
+            return ResponseEntity.ok(returnedExpertDto);
         }else return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/updateUserName")
-    public ResponseEntity<Expert> changeUserName(@RequestBody ExpertDto expertDto){
+    public ResponseEntity<ExpertDto> changeUserName(@RequestBody ExpertDto expertDto){
         return null;
     }
 
     @GetMapping("/waitingApprovalExperts")
-    private ResponseEntity<List<Expert>> waitingApprovalExperts(){
-        return ResponseEntity.ok(expertService.waitingApprovalExperts());
+    private ResponseEntity<List<ExpertDto>> waitingApprovalExperts(){
+        List<Expert> experts = expertService.waitingApprovalExperts();
+        ModelMapper modelMapper = new ModelMapper();
+        List<ExpertDto> expertDtoList = new ArrayList<>();
+        for (Expert e:experts) {
+            ExpertDto returnedExpertDto = modelMapper.map(e, ExpertDto.class);
+            expertDtoList.add(returnedExpertDto);
+        }
+        return ResponseEntity.ok(expertDtoList);
     }
 
     @PostMapping("/expertApproval")
-    public ResponseEntity<Expert> expertApproval(@RequestBody ExpertDto expertDto){
+    public ResponseEntity<ExpertDto> expertApproval(@RequestBody ExpertDto expertDto){
         DozerBeanMapper mapper = new DozerBeanMapper();
         Expert expert = mapper.map(expertDto, Expert.class);
         Expert returnedExpert = expertService.getById(expert.getId());
         returnedExpert.setUserStatus(UserStatus.ACCEPTED);
-        expertService.save(returnedExpert);
-            return ResponseEntity.ok(returnedExpert);
+        Expert finalExpert = expertService.save(returnedExpert);
+        ModelMapper modelMapper = new ModelMapper();
+        ExpertDto returnedExpertDto = modelMapper.map(finalExpert, ExpertDto.class);
+            return ResponseEntity.ok(returnedExpertDto);
     }
 }
