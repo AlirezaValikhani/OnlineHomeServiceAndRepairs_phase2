@@ -11,7 +11,6 @@ public interface ExpertService {
     Expert findByNationalCode(String userName);
     Expert findByEmailAddress(String email);
     List<Expert> findAcceptedExperts();
-    List<Expert> findWaitingApprovalExperts();
     Expert findExpertServices(Long expertId);
     Expert save(Expert expert);
     Expert changePassword(Expert expert);

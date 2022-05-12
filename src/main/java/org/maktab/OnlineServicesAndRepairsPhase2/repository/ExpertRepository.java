@@ -16,9 +16,6 @@ public interface ExpertRepository extends JpaRepository<Expert,Long> {
     @Query("select e from Expert e where e.userStatus = 'ACCEPTED'")
     List<Expert> findAcceptedExperts();
 
-    @Query("select e from Expert e where e.userStatus = 'WAITING_APPROVAL'")
-    List<Expert> findWaitingApprovalExperts();
-
     @Query("select e.services from Expert e where e.id = :id")
     Expert findExpertServices(@Param("id") Long expertId);
 

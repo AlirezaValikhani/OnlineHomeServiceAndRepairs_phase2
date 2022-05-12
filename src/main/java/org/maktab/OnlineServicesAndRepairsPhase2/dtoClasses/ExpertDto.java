@@ -30,4 +30,5 @@ public class ExpertDto {
     private UserStatus userStatus;
     private byte[] image;
     private String city;
+    private Long[] servicesId;
 }

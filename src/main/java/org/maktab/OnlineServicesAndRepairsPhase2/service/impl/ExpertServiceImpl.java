@@ -42,11 +42,6 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
-    public List<Expert> findWaitingApprovalExperts() {
-        return expertRepository.findWaitingApprovalExperts();
-    }
-
-    @Override
     public Expert findExpertServices(Long expertId) {
         return expertRepository.findExpertServices(expertId);
     }
