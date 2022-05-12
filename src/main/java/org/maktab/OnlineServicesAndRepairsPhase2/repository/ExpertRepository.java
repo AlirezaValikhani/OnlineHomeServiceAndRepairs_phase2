@@ -2,6 +2,7 @@ package org.maktab.OnlineServicesAndRepairsPhase2.repository;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -11,9 +12,6 @@ import java.util.List;
 public interface ExpertRepository extends JpaRepository<Expert,Long> {
     Expert findByNationalCode(String userName);
     Expert findByEmailAddress(String email);
-
-    @Query(value = "update Expert e set e.password = :password where e.id = :id")
-    Expert updatePassword(@Param("password") String password,@Param("id") Long id);
 
     @Query("select e from Expert e where e.userStatus = 'ACCEPTED'")
     List<Expert> findAcceptedExperts();
@@ -26,4 +24,8 @@ public interface ExpertRepository extends JpaRepository<Expert,Long> {
 
     @Query("select e from Expert e where e.userStatus = 'WAITING_APPROVAL' ")
     List<Expert> waitingApprovalExperts();
+
+    @Modifying
+    @Query("update Expert e set e.userStatus = 'ACCEPTED' where e.id = :id")
+    void updateProfessionalStatus(@Param(value = "id") Long id);
 }

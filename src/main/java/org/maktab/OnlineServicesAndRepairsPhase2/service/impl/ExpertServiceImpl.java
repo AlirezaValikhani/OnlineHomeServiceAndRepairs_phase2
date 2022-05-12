@@ -83,6 +83,11 @@ public class ExpertServiceImpl implements ExpertService {
         return expertRepository.getById(id);
     }
 
+    @Override
+    public void updateProfessionalStatus(Long id) {
+        expertRepository.updateProfessionalStatus(id);
+    }
+
 
     /*public byte[] getImage(byte[] image) {
             try {

@@ -64,11 +64,7 @@ public class ExpertController {
     }
 
     @PostMapping("/expertApproval")
-    public ResponseEntity<ExpertDto> expertApproval(@RequestBody ExpertDto expertDto){
-        Expert returnedExpert = expertService.getById(expertDto.getId());
-        returnedExpert.setUserStatus(UserStatus.ACCEPTED);
-        System.out.println(returnedExpert);
-        ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
-            return ResponseEntity.ok(returnedExpertDto);
+    public void expertApproval(@RequestBody ExpertDto expertDto){
+        expertService.updateProfessionalStatus(expertDto.getId());
     }
 }

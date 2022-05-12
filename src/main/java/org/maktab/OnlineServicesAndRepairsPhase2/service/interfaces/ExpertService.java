@@ -18,4 +18,5 @@ public interface ExpertService {
     List<Expert> waitingApprovalExperts();
     Expert expertApproval(Long id);
     Expert getById(Long id);
+    void updateProfessionalStatus(Long id);
 }
