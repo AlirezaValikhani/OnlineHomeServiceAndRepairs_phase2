@@ -16,6 +16,6 @@ public interface OfferRepository extends CrudRepository<Offer,Long> {
     @Query("select o from Offer o where o.id = :id")
     Offer getById(@Param("id") Long id);
 
-    /*@Query("select o from Offer o where o.order.id = :id")
-    List<Offer> findByOrderId(@Param("id") Long id);*/
+    @Query("from Offer o where o.order.id = :orderId order by o.bidPriceOffer asc ")
+    List<Offer> getOrderOffers(@Param("orderId") Long orderId);
 }

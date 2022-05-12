@@ -8,4 +8,5 @@ public interface OfferService {
     Offer getById(Long id);
     Offer save(Offer offer);
     List<Offer> findByOrderId(Long id);
+    List<Offer> getOrderOffers(Long id);
 }

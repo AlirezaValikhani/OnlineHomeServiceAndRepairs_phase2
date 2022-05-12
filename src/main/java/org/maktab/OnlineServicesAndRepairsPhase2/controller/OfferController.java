@@ -52,8 +52,19 @@ public class OfferController {
     public ResponseEntity<List<OfferDto>> findOfferList(OfferDto offerDto){
         List<Offer> offers = offerService.findByOrderId(offerDto.getOrderId());
         List<OfferDto> returnedOffers = new ArrayList<>();
-        System.out.println(offers.size());
         for (Offer o:offers) {
+            OfferDto returnedOfferDto = modelMapper.map(o, OfferDto.class);
+            returnedOffers.add(returnedOfferDto);
+        }
+        return ResponseEntity.ok(returnedOffers);
+    }
+
+    @GetMapping("/showOfferListByCreditAndBidPriceOffer")
+    public ResponseEntity<List<OfferDto>> showOfferList(@RequestBody OfferDto offerDto){
+        Order order = orderService.getById(offerDto.getOrderId());
+        List<Offer> offerList = offerService.getOrderOffers(order.getId());
+        List<OfferDto> returnedOffers = new ArrayList<>();
+        for (Offer o:offerList) {
             OfferDto returnedOfferDto = modelMapper.map(o, OfferDto.class);
             returnedOffers.add(returnedOfferDto);
         }

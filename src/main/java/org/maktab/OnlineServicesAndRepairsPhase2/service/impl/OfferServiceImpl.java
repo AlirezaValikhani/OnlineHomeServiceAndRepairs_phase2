@@ -23,6 +23,11 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
+    public List<Offer> getOrderOffers(Long id) {
+        return offerRepository.getOrderOffers(id);
+    }
+
+    @Override
     public Offer getById(Long id) {
         return offerRepository.getById(id);
     }
