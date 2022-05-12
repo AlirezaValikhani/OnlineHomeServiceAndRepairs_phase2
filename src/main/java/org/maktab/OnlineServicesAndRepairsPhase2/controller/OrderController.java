@@ -1,12 +1,15 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.CustomerServiceImpl;
+import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OrderServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/order")
@@ -23,13 +27,15 @@ public class OrderController {
     private final OrderServiceImpl orderService;
     private final CustomerServiceImpl customerService;
     private final SpecialtyServiceImpl specialtyService;
+    private final ExpertServiceImpl expertService;
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
 
-    public OrderController(OrderServiceImpl orderService, CustomerServiceImpl customerService, SpecialtyServiceImpl specialtyService) {
+    public OrderController(OrderServiceImpl orderService, CustomerServiceImpl customerService, SpecialtyServiceImpl specialtyService,ExpertServiceImpl expertService) {
         this.orderService = orderService;
         this.customerService = customerService;
         this.specialtyService = specialtyService;
+        this.expertService = expertService;
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
     }
@@ -49,7 +55,7 @@ public class OrderController {
         } else return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/getOrderByServiceNameAndCity")
+    /*@GetMapping("/getOrderByServiceNameAndCity")
     public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody OrderDto orderDto) {
         Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
         Order order = mapper.map(orderDto, Order.class);
@@ -61,7 +67,7 @@ public class OrderController {
             orderDtoList.add(returnedOrderDto);
         }
             return ResponseEntity.ok(orderDtoList);
-    }
+    }*/
 
     @GetMapping("/findById")
     public ResponseEntity<OrderDto> findById(@RequestParam OrderDto orderDto) {
@@ -85,5 +91,35 @@ public class OrderController {
         return ResponseEntity.ok(orderDtoList);
     }
 
-
+    @GetMapping("/getByCityAndService")
+    public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody ExpertDto expertDto) {
+        Expert expert = expertService.getById(expertDto.getId());
+        List<Order> returnedOrders = orderService.getByServiceNameAndCityAndStatus(expert.getCity(),expert.getServices());
+        List<OrderDto> orderDtoList = new ArrayList<>();
+        for (Order o:returnedOrders) {
+            OrderDto orderDto = modelMapper.map(o, OrderDto.class);
+            orderDtoList.add(orderDto);
+        }
+        return ResponseEntity.ok(orderDtoList);
+    }
 }
+
+
+
+
+    /*@GetMapping("/getByCityAndService")
+    public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody ExpertDto expertDto) {
+        Expert expert = expertService.getById(expertDto.getId());
+        List<Order> orders = new ArrayList<>();
+        List<OrderDto> orderDtoList = new ArrayList<>();
+        Set<Specialty> specialties = expert.getServices();
+        for (Specialty s:specialties) {
+            List<Order> returnedOrders = orderService.getByServiceNameAndCityAndStatus(s.getName(),expert.getCity());
+            orders.addAll(returnedOrders);
+        }
+        for (Order o:orders) {
+            OrderDto returnedOrderDto = modelMapper.map(o, OrderDto.class);
+            orderDtoList.add(returnedOrderDto);
+        }
+        return ResponseEntity.ok(orderDtoList);
+    }*/
