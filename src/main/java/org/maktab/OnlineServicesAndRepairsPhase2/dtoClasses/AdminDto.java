@@ -12,6 +12,7 @@ import javax.persistence.Column;
 @Getter
 @Setter
 public class AdminDto {
+    private Long id;
     private String firstName;
     private String lastName;
     @Column(unique = true)

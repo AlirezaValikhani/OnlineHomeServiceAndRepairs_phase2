@@ -34,7 +34,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Admin changeAdminPassword(String nationalCode,String password) {
-        return adminRepository.update(password,nationalCode);
+    public Admin changeAdminPassword(Long id,String password) {
+        Admin admin = adminRepository.getById(id);
+        admin.setPassword(password);
+        return adminRepository.save(admin);
     }
 }

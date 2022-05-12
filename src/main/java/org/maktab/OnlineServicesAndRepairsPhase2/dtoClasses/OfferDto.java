@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class OfferDto {
+    private Long id;
     private Timestamp dateAndTimeOfBidSubmission;
     private Double bidPriceOffer;
     private String durationOfWork;

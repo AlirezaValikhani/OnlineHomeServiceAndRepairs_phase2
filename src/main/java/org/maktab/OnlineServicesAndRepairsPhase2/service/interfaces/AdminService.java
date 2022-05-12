@@ -6,5 +6,5 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 public interface AdminService {
     Admin findByNationalCode(String userName);
     Admin addAdminByDefault();
-    Admin changeAdminPassword(String nationalCode,String password);
+    Admin changeAdminPassword(Long id,String password);
 }

@@ -66,13 +66,11 @@ public class ExpertController {
 
     @PostMapping("/expertApproval")
     public ResponseEntity<ExpertDto> expertApproval(@RequestBody ExpertDto expertDto){
-        DozerBeanMapper mapper = new DozerBeanMapper();
-        Expert expert = mapper.map(expertDto, Expert.class);
-        Expert returnedExpert = expertService.getById(expert.getId());
+        Expert returnedExpert = expertService.getById(expertDto.getId());
         returnedExpert.setUserStatus(UserStatus.ACCEPTED);
-        Expert finalExpert = expertService.save(returnedExpert);
+        System.out.println(returnedExpert);
         ModelMapper modelMapper = new ModelMapper();
-        ExpertDto returnedExpertDto = modelMapper.map(finalExpert, ExpertDto.class);
+        ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
             return ResponseEntity.ok(returnedExpertDto);
     }
 }

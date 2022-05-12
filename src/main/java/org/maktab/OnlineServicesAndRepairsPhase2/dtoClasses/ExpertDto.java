@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class ExpertDto {
+    private Long id;
     private String firstName;
     private String lastName;
     private String emailAddress;

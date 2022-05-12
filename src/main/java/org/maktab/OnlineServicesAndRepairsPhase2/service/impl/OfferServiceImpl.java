@@ -19,7 +19,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public List<Offer> findByOrderId(Long orderId) {
-        return findByOrderId(orderId);
+        return offerRepository.findByOrderId(orderId);
     }
 
     @Override

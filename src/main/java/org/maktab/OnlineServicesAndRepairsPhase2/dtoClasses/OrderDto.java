@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class OrderDto {
+    private Long id;
     private Double bidPriceOrder;
     private String jobDescription;
     private String address;

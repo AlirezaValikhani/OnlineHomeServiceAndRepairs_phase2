@@ -63,7 +63,7 @@ public class ExpertServiceImpl implements ExpertService {
     public Expert changePassword(Expert expert) {
         Expert returnedExpert = expertRepository.getById(expert.getId());
         returnedExpert.setPassword(expert.getPassword());
-            return expertRepository.save(expert);
+            return expertRepository.save(returnedExpert);
     }
 
     @Override

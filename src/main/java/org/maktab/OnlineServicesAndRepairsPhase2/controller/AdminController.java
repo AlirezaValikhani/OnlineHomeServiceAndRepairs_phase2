@@ -28,7 +28,7 @@ public class AdminController {
     public ResponseEntity<AdminDto> updateAdmin(@RequestBody AdminDto adminDto){
         DozerBeanMapper mapper = new DozerBeanMapper();
         Admin admin = mapper.map(adminDto, Admin.class);
-        Admin returnedAdmin = adminService.changeAdminPassword(admin.getNationalCode(),admin.getPassword());
+        Admin returnedAdmin = adminService.changeAdminPassword(admin.getId(),admin.getPassword());
         if(returnedAdmin.getPassword().equals(admin.getPassword())){
             ModelMapper modelMapper = new ModelMapper();
             AdminDto returnedAdminDto = modelMapper.map(returnedAdmin, AdminDto.class);

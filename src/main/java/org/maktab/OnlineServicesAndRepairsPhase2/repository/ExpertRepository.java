@@ -1,17 +1,16 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.repository;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface ExpertRepository extends CrudRepository<Expert,Long> {
+public interface ExpertRepository extends JpaRepository<Expert,Long> {
     Expert findByNationalCode(String userName);
     Expert findByEmailAddress(String email);
-    Expert getById(Long id);
 
     @Query(value = "update Expert e set e.password = :password where e.id = :id")
     Expert updatePassword(@Param("password") String password,@Param("id") Long id);

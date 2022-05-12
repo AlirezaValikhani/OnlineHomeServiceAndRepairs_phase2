@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SpecialtyDto {
+    private Long id;
     private String name;
     private Double basePrice;
     private String description;
