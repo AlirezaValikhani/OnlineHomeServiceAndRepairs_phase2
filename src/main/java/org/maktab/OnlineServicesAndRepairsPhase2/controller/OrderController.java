@@ -102,6 +102,17 @@ public class OrderController {
         }
         return ResponseEntity.ok(orderDtoList);
     }
+
+    @PostMapping("/chooseExpertForOrder")
+    public ResponseEntity<OrderDto> chooseExpertForOrder(@RequestBody OrderDto orderDto){
+        Expert expert = expertService.getById(orderDto.getExpertId());
+        Order order = orderService.getById(orderDto.getId());
+        order.setOrderStatus(OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE);
+        order.setExpert(expert);
+        Order returnedOrder = orderService.save(order);
+        OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
+        return ResponseEntity.ok(returnedOrderDto);
+    }
 }
 
 
