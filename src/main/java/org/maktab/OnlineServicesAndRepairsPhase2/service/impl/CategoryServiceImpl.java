@@ -6,6 +6,9 @@ import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CategoryServ
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,5 +32,20 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public void addCategory(Category category){
         categoryRepository.save(category);
+    }
+
+    @Override
+    public List<Category> findAll() {
+        Iterable<Category> iterable = categoryRepository.findAll();
+        List<Category> result = new ArrayList<>();
+        for (Category c:iterable) {
+            result.add(c);
+        }
+        return result;
+    }
+
+    @Override
+    public Category getById(Long id) {
+        return categoryRepository.getById(id);
     }
 }

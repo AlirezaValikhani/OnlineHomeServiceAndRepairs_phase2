@@ -22,25 +22,27 @@ public class OfferController {
     private final OfferServiceImpl offerService;
     private final OrderServiceImpl orderService;
     private final ExpertServiceImpl expertService;
+    private final DozerBeanMapper mapper;
+    private final ModelMapper modelMapper;
 
     public OfferController(OfferServiceImpl offerService, OrderServiceImpl orderService,ExpertServiceImpl expertService) {
         this.offerService = offerService;
         this.orderService = orderService;
         this.expertService = expertService;
+        this.mapper = new DozerBeanMapper();
+        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
     public ResponseEntity<OfferDto> save(@RequestBody OfferDto offerDto){
         Order order = orderService.getById(offerDto.getOrderId());
         Expert expert = expertService.getById(offerDto.getExpertId());
-        DozerBeanMapper mapper = new DozerBeanMapper();
         Offer offer = mapper.map(offerDto, Offer.class);
         if (offer != null) {
             order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SELECTION);
             offer.setOrder(order);
             offer.setExpert(expert);
             Offer returnedOffer = offerService.save(offer);
-            ModelMapper modelMapper = new ModelMapper();
             OfferDto returnedOfferDto = modelMapper.map(returnedOffer, OfferDto.class);
             return ResponseEntity.ok(returnedOfferDto);
         } else return ResponseEntity.notFound().build();
@@ -49,7 +51,6 @@ public class OfferController {
     @GetMapping("/findOfferListByOrderId")
     public ResponseEntity<List<OfferDto>> findOfferList(OfferDto offerDto){
         List<Offer> offers = offerService.findByOrderId(offerDto.getOrderId());
-        ModelMapper modelMapper = new ModelMapper();
         List<OfferDto> returnedOffers = new ArrayList<>();
         System.out.println(offers.size());
         for (Offer o:offers) {

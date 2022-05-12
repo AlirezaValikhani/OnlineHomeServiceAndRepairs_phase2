@@ -1,6 +1,7 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer getById(Long id) {
         return customerRepository.getById(id);
+    }
+
+    @Override
+    public Customer changePassword(Customer customer) {
+        Customer returnedCustomer = customerRepository.getById(customer.getId());
+        returnedCustomer.setPassword(customer.getPassword());
+        return customerRepository.save(returnedCustomer);
     }
 }

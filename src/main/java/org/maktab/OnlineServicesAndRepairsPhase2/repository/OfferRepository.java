@@ -11,10 +11,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 public interface OfferRepository extends CrudRepository<Offer,Long> {
+    List<Offer> findByOrderId(Long id);
 
     @Query("select o from Offer o where o.id = :id")
     Offer getById(@Param("id") Long id);
 
-    @Query("select o from Offer o where o.order.id = :id")
-    List<Offer> findByOrderId(@Param("id") Long id);
+    /*@Query("select o from Offer o where o.order.id = :id")
+    List<Offer> findByOrderId(@Param("id") Long id);*/
 }

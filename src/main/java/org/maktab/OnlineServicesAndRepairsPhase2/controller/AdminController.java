@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 public class AdminController {
     private final AdminServiceImpl adminService;
+    private final DozerBeanMapper mapper;
+    private final ModelMapper modelMapper;
 
     public AdminController(AdminServiceImpl adminService) {
         this.adminService = adminService;
+        this.mapper = new DozerBeanMapper();
+        this.modelMapper = new ModelMapper();
     }
 
     @GetMapping("/save")
@@ -26,11 +30,9 @@ public class AdminController {
 
     @PutMapping("/updatePassword")
     public ResponseEntity<AdminDto> updateAdmin(@RequestBody AdminDto adminDto){
-        DozerBeanMapper mapper = new DozerBeanMapper();
         Admin admin = mapper.map(adminDto, Admin.class);
         Admin returnedAdmin = adminService.changeAdminPassword(admin.getId(),admin.getPassword());
         if(returnedAdmin.getPassword().equals(admin.getPassword())){
-            ModelMapper modelMapper = new ModelMapper();
             AdminDto returnedAdminDto = modelMapper.map(returnedAdmin, AdminDto.class);
             return ResponseEntity.ok(returnedAdminDto);
         } else return ResponseEntity.notFound().build();

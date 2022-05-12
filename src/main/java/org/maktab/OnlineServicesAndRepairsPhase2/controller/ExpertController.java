@@ -18,17 +18,19 @@ import java.util.List;
 @RequestMapping("/expert")
 public class ExpertController {
     private final ExpertServiceImpl expertService;
+    private final DozerBeanMapper mapper;
+    private final ModelMapper modelMapper;
 
     public ExpertController(ExpertServiceImpl expertService) {
         this.expertService = expertService;
+        this.mapper = new DozerBeanMapper();
+        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
     public ResponseEntity<ExpertDto> save(@RequestBody ExpertDto expertDto){
-        DozerBeanMapper mapper = new DozerBeanMapper();
         Expert expert = mapper.map(expertDto, Expert.class);
         Expert returnedExpert = expertService.save(expert);
-        ModelMapper modelMapper = new ModelMapper();
         ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
         if (returnedExpertDto != null)
             return ResponseEntity.ok(returnedExpertDto);
@@ -37,10 +39,8 @@ public class ExpertController {
 
     @PutMapping("/updatePassword")
     public ResponseEntity<ExpertDto> changePassword(@RequestBody ExpertDto expertDto){
-        DozerBeanMapper mapper = new DozerBeanMapper();
         Expert expert = mapper.map(expertDto, Expert.class);
         Expert returnedExpert = expertService.changePassword(expert);
-        ModelMapper modelMapper = new ModelMapper();
         ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
         if (returnedExpertDto != null){
             return ResponseEntity.ok(returnedExpertDto);
@@ -55,7 +55,6 @@ public class ExpertController {
     @GetMapping("/waitingApprovalExperts")
     private ResponseEntity<List<ExpertDto>> waitingApprovalExperts(){
         List<Expert> experts = expertService.waitingApprovalExperts();
-        ModelMapper modelMapper = new ModelMapper();
         List<ExpertDto> expertDtoList = new ArrayList<>();
         for (Expert e:experts) {
             ExpertDto returnedExpertDto = modelMapper.map(e, ExpertDto.class);
@@ -69,7 +68,6 @@ public class ExpertController {
         Expert returnedExpert = expertService.getById(expertDto.getId());
         returnedExpert.setUserStatus(UserStatus.ACCEPTED);
         System.out.println(returnedExpert);
-        ModelMapper modelMapper = new ModelMapper();
         ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
             return ResponseEntity.ok(returnedExpertDto);
     }

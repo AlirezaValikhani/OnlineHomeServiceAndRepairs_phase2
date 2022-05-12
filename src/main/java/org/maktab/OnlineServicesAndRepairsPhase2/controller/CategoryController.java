@@ -7,27 +7,41 @@ import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.CategoryServiceImp
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.dozer.DozerBeanMapper;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
     private final CategoryServiceImpl categoryService;
+    private final DozerBeanMapper mapper;
+    private final ModelMapper modelMapper;
+
 
     public CategoryController(CategoryServiceImpl categoryService) {
         this.categoryService = categoryService;
+        this.mapper = new DozerBeanMapper();
+        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
     public ResponseEntity<CategoryDto> save(@RequestBody CategoryDto categoryDto){
-        DozerBeanMapper mapper = new DozerBeanMapper();
         Category category = mapper.map(categoryDto, Category.class);
         Category returnedCategory = categoryService.save(category);
-        ModelMapper modelMapper = new ModelMapper();
         CategoryDto returnedCategoryDto = modelMapper.map(returnedCategory, CategoryDto.class);
        return ResponseEntity.ok(returnedCategoryDto);
+    }
+
+    @GetMapping("/showAllCategories")
+    public ResponseEntity<List<CategoryDto>> showAllCategories(){
+        List<Category> categoryList = categoryService.findAll();
+        List<CategoryDto> result = new ArrayList<>();
+        for (Category c:categoryList) {
+            CategoryDto returnedCategoryDto = modelMapper.map(c, CategoryDto.class);
+            result.add(returnedCategoryDto);
+        }
+        return ResponseEntity.ok(result);
     }
 }
