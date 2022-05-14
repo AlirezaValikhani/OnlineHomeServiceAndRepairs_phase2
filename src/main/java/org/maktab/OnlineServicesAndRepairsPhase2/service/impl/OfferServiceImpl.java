@@ -47,7 +47,6 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public ResponseEntity<List<OfferDto>> showOfferList(OfferDto offerDto)  {
-        Order order = orderService.getById(offerDto.getOrderId());
         List<Offer> offerList = offerRepository.getOrderOffers(offerDto.getOrderId());
         List<OfferDto> returnedOffers = new ArrayList<>();
         for (Offer o : offerList) {

@@ -16,6 +16,7 @@ public interface OrderService {
     ResponseEntity<OrderDto> findById(OrderDto orderDto);
     ResponseEntity<OrderDto> saveOrder(OrderDto orderDto);
     Order save(Order order);
+    Order getById(Long id);
     ResponseEntity<List<OrderDto>> getByCityAndService(ExpertDto expertDto);
     ResponseEntity<OrderDto> chooseExpertForOrder(OrderDto orderDto);
 }
