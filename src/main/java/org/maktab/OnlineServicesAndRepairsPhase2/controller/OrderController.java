@@ -25,93 +25,35 @@ import java.util.Set;
 public class OrderController {
 
     private final OrderServiceImpl orderService;
-    private final CustomerServiceImpl customerService;
-    private final SpecialtyServiceImpl specialtyService;
-    private final ExpertServiceImpl expertService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
+
 
     public OrderController(OrderServiceImpl orderService, CustomerServiceImpl customerService, SpecialtyServiceImpl specialtyService,ExpertServiceImpl expertService) {
         this.orderService = orderService;
-        this.customerService = customerService;
-        this.specialtyService = specialtyService;
-        this.expertService = expertService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
     public ResponseEntity<OrderDto> save(@RequestBody OrderDto orderDto) {
-        Customer customer = customerService.getById(orderDto.getCustomerId());
-        Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
-        Order order = mapper.map(orderDto, Order.class);
-        if (order != null) {
-            order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SUGGESTION);
-            order.setCustomer(customer);
-            order.setService(specialty);
-            Order returnedOrder = orderService.save(order);
-            OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
-            return ResponseEntity.ok(returnedOrderDto);
-        } else return ResponseEntity.notFound().build();
+        return save(orderDto);
     }
-
-    /*@GetMapping("/getOrderByServiceNameAndCity")
-    public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody OrderDto orderDto) {
-        Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
-        Order order = mapper.map(orderDto, Order.class);
-        List<Order> orders = orderService.getByServiceNameAndCityAndStatus(specialty.getName(),
-                order.getAddress());
-        List<OrderDto> orderDtoList = new ArrayList<>();
-        for (Order o:orders) {
-            OrderDto returnedOrderDto = modelMapper.map(o, OrderDto.class);
-            orderDtoList.add(returnedOrderDto);
-        }
-            return ResponseEntity.ok(orderDtoList);
-    }*/
 
     @GetMapping("/findById")
     public ResponseEntity<OrderDto> findById(@RequestParam OrderDto orderDto) {
-        Order order = mapper.map(orderDto, Order.class);
-        Order returnedOrder = orderService.getById(order.getId());
-        OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
-        if (returnedOrderDto != null)
-            return ResponseEntity.ok(returnedOrderDto);
-        else
-            return ResponseEntity.notFound().build();
+        return orderService.findById(orderDto);
     }
 
     @GetMapping("/getByExpertSuggestion")
     public ResponseEntity<List<OrderDto>> getByExpertSuggestion(){
-        List<Order> orders = orderService.loadByExpertSuggestionStatus();
-        List<OrderDto> orderDtoList = new ArrayList<>();
-        for (Order o:orders) {
-            OrderDto orderDto = modelMapper.map(o, OrderDto.class);
-            orderDtoList.add(orderDto);
-        }
-        return ResponseEntity.ok(orderDtoList);
+        return orderService.getByExpertSuggestion();
     }
 
     @GetMapping("/getByCityAndService")
     public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody ExpertDto expertDto) {
-        Expert expert = expertService.getById(expertDto.getId());
-        List<Order> returnedOrders = orderService.getByServiceNameAndCityAndStatus(expert.getCity(),expert.getServices());
-        List<OrderDto> orderDtoList = new ArrayList<>();
-        for (Order o:returnedOrders) {
-            OrderDto orderDto = modelMapper.map(o, OrderDto.class);
-            orderDtoList.add(orderDto);
-        }
-        return ResponseEntity.ok(orderDtoList);
+        return orderService.getByCityAndService(expertDto);
     }
 
     @PostMapping("/chooseExpertForOrder")
     public ResponseEntity<OrderDto> chooseExpertForOrder(@RequestBody OrderDto orderDto){
-        Expert expert = expertService.getById(orderDto.getExpertId());
-        Order order = orderService.getById(orderDto.getId());
-        order.setOrderStatus(OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE);
-        order.setExpert(expert);
-        Order returnedOrder = orderService.save(order);
-        OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
-        return ResponseEntity.ok(returnedOrderDto);
+        return orderService.chooseExpertForOrder(orderDto);
     }
 }
 

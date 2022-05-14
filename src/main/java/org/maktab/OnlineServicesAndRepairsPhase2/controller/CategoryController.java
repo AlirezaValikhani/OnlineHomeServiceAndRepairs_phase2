@@ -16,32 +16,18 @@ import java.util.List;
 @RequestMapping("/category")
 public class CategoryController {
     private final CategoryServiceImpl categoryService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
-
 
     public CategoryController(CategoryServiceImpl categoryService) {
         this.categoryService = categoryService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
-    public ResponseEntity<CategoryDto> save(@RequestBody CategoryDto categoryDto){
-        Category category = mapper.map(categoryDto, Category.class);
-        Category returnedCategory = categoryService.save(category);
-        CategoryDto returnedCategoryDto = modelMapper.map(returnedCategory, CategoryDto.class);
-       return ResponseEntity.ok(returnedCategoryDto);
+    public ResponseEntity<CategoryDto> save(@RequestBody CategoryDto categoryDto) {
+        return categoryService.addCategory(categoryDto);
     }
 
     @GetMapping("/showAllCategories")
-    public ResponseEntity<List<CategoryDto>> showAllCategories(){
-        List<Category> categoryList = categoryService.findAll();
-        List<CategoryDto> result = new ArrayList<>();
-        for (Category c:categoryList) {
-            CategoryDto returnedCategoryDto = modelMapper.map(c, CategoryDto.class);
-            result.add(returnedCategoryDto);
-        }
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<CategoryDto>> showAllCategories() {
+        return categoryService.findAll();
     }
 }

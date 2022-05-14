@@ -20,54 +20,24 @@ import java.util.List;
 @RequestMapping("/offer")
 public class OfferController {
     private final OfferServiceImpl offerService;
-    private final OrderServiceImpl orderService;
-    private final ExpertServiceImpl expertService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
 
-    public OfferController(OfferServiceImpl offerService, OrderServiceImpl orderService,ExpertServiceImpl expertService) {
+
+    public OfferController(OfferServiceImpl offerService, OrderServiceImpl orderService, ExpertServiceImpl expertService) {
         this.offerService = offerService;
-        this.orderService = orderService;
-        this.expertService = expertService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
-    public ResponseEntity<OfferDto> save(@RequestBody OfferDto offerDto){
-        Order order = orderService.getById(offerDto.getOrderId());
-        Expert expert = expertService.getById(offerDto.getExpertId());
-        Offer offer = mapper.map(offerDto, Offer.class);
-        if (offer != null) {
-            order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SELECTION);
-            offer.setOrder(order);
-            offer.setExpert(expert);
-            Offer returnedOffer = offerService.save(offer);
-            OfferDto returnedOfferDto = modelMapper.map(returnedOffer, OfferDto.class);
-            return ResponseEntity.ok(returnedOfferDto);
-        } else return ResponseEntity.notFound().build();
+    public ResponseEntity<OfferDto> save(@RequestBody OfferDto offerDto) {
+        return offerService.save(offerDto);
     }
 
     @GetMapping("/findOfferListByOrderId")
-    public ResponseEntity<List<OfferDto>> findOfferList(OfferDto offerDto){
-        List<Offer> offers = offerService.findByOrderId(offerDto.getOrderId());
-        List<OfferDto> returnedOffers = new ArrayList<>();
-        for (Offer o:offers) {
-            OfferDto returnedOfferDto = modelMapper.map(o, OfferDto.class);
-            returnedOffers.add(returnedOfferDto);
-        }
-        return ResponseEntity.ok(returnedOffers);
+    public ResponseEntity<List<OfferDto>> findOfferList(OfferDto offerDto) {
+        return offerService.findOfferListByOrderId(offerDto);
     }
 
     @GetMapping("/showOfferListByCreditAndBidPriceOffer")
-    public ResponseEntity<List<OfferDto>> showOfferList(@RequestBody OfferDto offerDto){
-        Order order = orderService.getById(offerDto.getOrderId());
-        List<Offer> offerList = offerService.getOrderOffers(order.getId());
-        List<OfferDto> returnedOffers = new ArrayList<>();
-        for (Offer o:offerList) {
-            OfferDto returnedOfferDto = modelMapper.map(o, OfferDto.class);
-            returnedOffers.add(returnedOfferDto);
-        }
-        return ResponseEntity.ok(returnedOffers);
+    public ResponseEntity<List<OfferDto>> showOfferList(@RequestBody OfferDto offerDto) {
+        return offerService.showOfferList(offerDto);
     }
 }

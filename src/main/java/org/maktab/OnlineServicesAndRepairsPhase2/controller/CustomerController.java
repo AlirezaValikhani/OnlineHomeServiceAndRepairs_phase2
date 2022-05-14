@@ -17,31 +17,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/customer")
 public class CustomerController {
     private final CustomerServiceImpl customerService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
 
     public CustomerController(CustomerServiceImpl customerService) {
         this.customerService = customerService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
-    public ResponseEntity<CustomerDto> save(@RequestBody CustomerDto customerDto){
-        Customer customer = mapper.map(customerDto, Customer.class);
-        customer.setUserStatus(UserStatus.NEW);
-        Customer returnedCustomer = customerService.save(customer);
-        CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
-        if (returnedCustomer != null)
-            return ResponseEntity.ok(returnedCustomerDto);
-        else return ResponseEntity.notFound().build();
+    public ResponseEntity<CustomerDto> save(@RequestBody CustomerDto customerDto) {
+        return customerService.save(customerDto);
     }
 
     @PutMapping("/updatePassword")
-    public ResponseEntity<CustomerDto> changePassword(@RequestBody CustomerDto customerDto){
-        Customer customer = mapper.map(customerDto, Customer.class);
-        Customer returnedCustomer = customerService.changePassword(customer);
-        CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
-            return ResponseEntity.ok(returnedCustomerDto);
+    public ResponseEntity<CustomerDto> changePassword(@RequestBody CustomerDto customerDto) {
+        return customerService.changePassword(customerDto);
     }
 }

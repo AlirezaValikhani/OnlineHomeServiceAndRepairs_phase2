@@ -1,8 +1,12 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
+import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CategoryDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CategoryRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CategoryService;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -14,14 +18,13 @@ import java.util.List;
 @Transactional
 public class CategoryServiceImpl implements CategoryService{
     private final CategoryRepository categoryRepository;
+    private final DozerBeanMapper mapper;
+    private final ModelMapper modelMapper;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-    }
-
-    @Override
-    public Category save(Category category) {
-        return categoryRepository.save(category);
+        this.mapper = new DozerBeanMapper();
+        this.modelMapper = new ModelMapper();
     }
 
     @Override
@@ -30,18 +33,21 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public void addCategory(Category category){
-        categoryRepository.save(category);
+    public ResponseEntity<CategoryDto> addCategory(CategoryDto categoryDto){
+        Category category = mapper.map(categoryDto, Category.class);
+        Category returnedCategory = categoryRepository.save(category);
+        CategoryDto returnedCategoryDto = modelMapper.map(returnedCategory, CategoryDto.class);
+        return ResponseEntity.ok(returnedCategoryDto);
     }
 
     @Override
-    public List<Category> findAll() {
+    public ResponseEntity<List<CategoryDto>> findAll() {
         Iterable<Category> iterable = categoryRepository.findAll();
-        List<Category> result = new ArrayList<>();
-        for (Category c:iterable) {
-            result.add(c);
-        }
-        return result;
+        List<Category> objectResult = new ArrayList<>();
+        List<CategoryDto> result = new ArrayList<>();
+        iterable.forEach(objectResult::add);
+        objectResult.forEach(category -> result.add(modelMapper.map(category, CategoryDto.class)));
+        return ResponseEntity.ok(result);
     }
 
     @Override
