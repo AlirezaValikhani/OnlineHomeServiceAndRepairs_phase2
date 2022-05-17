@@ -7,6 +7,9 @@ import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.BaseEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -16,6 +19,8 @@ import java.util.Set;
 @Entity
 public class Specialty extends BaseEntity<Long> {
     @Column(unique = true)
+    @NotNull
+    @Size(min = 2,message = "Specialty name should have at least 2 characters!!!")
     private String name;
     private Double basePrice;
     private String description;

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -29,7 +30,7 @@ public class Customer extends User {
         super(password);
     }
 
-    public Customer(String firstName, String lastName, String emailAddress, String nationalCode, String password, Timestamp registrationDate, Integer credit, Double balance, UserStatus userStatus) {
-        super(firstName, lastName, emailAddress, nationalCode, password, registrationDate, credit, balance, userStatus);
+    public Customer(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType) {
+        super(firstName, lastName, emailAddress, nationalCode, password, credit, balance, userStatus,userType);
     }
 }

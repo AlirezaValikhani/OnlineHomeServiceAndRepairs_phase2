@@ -8,9 +8,11 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.OrderRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.OrderService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +41,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> findByCustomerId(Long customerId) {
-        return orderRepository.findByCustomerId(customerId);
+        List<Order> foundedOrderList = orderRepository.findByCustomerId(customerId);
+        if(foundedOrderList.size() == 0)
+            throw new NotFoundOrderException();
+        return foundedOrderList;
     }
 
     @Override
@@ -57,6 +62,8 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<OrderDto> findById(OrderDto orderDto) {
         Order order = mapper.map(orderDto, Order.class);
         Order returnedOrder = orderRepository.getById(order.getId());
+        if(returnedOrder == null)
+            throw new NotFoundOrderException();
         OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
         if (returnedOrderDto != null)
             return ResponseEntity.ok(returnedOrderDto);
@@ -67,15 +74,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<OrderDto> saveOrder(OrderDto orderDto) {
         Customer customer = customerService.getById(orderDto.getCustomerId());
+        if(customer == null)
+            throw new NotFoundCustomerException();
         Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
+        if(specialty == null)
+            throw new NotFoundSpecialtyException();
+        if (customer.getBalance() < specialty.getBasePrice())
+            throw new NotEnoughBalanceException();
         Order order = mapper.map(orderDto, Order.class);
         if (order != null) {
-            order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SUGGESTION);
-            order.setCustomer(customer);
-            order.setService(specialty);
-            Order returnedOrder = save(order);
+            Order toSaveOrder = new Order(order.getBidPriceOrder(),order.getJobDescription(),order.getAddress()
+                    ,order.getOrderRegistrationDate(),order.getOrderExecutionDate()
+                    ,OrderStatus.WAITING_FOR_EXPERT_SUGGESTION,customer,specialty);
+            Order returnedOrder = save(toSaveOrder);
             OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
-            return ResponseEntity.ok(returnedOrderDto);
+            return new ResponseEntity<>(returnedOrderDto, HttpStatus.CREATED);
         } else return ResponseEntity.notFound().build();
     }
 
@@ -85,9 +98,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Order getById(Long id) {
+        return orderRepository.getById(id);
+    }
+
+    @Override
     public ResponseEntity<List<OrderDto>> getByCityAndService(ExpertDto expertDto) {
         Expert expert = expertService.getById(expertDto.getId());
-        List<Order> returnedOrders = orderRepository.getByCityAndServiceAndStatus(expert.getCity(),expert.getServices());
+        if(expert == null)
+            throw new NotFoundExpertException();
+        List<Order> returnedOrders = orderRepository.getByCityAndServiceAndStatus(expert.getCity()
+                ,expert.getServices());
         List<OrderDto> orderDtoList = new ArrayList<>();
         for (Order o:returnedOrders) {
             OrderDto orderDto = modelMapper.map(o, OrderDto.class);
@@ -99,10 +120,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<OrderDto> chooseExpertForOrder(OrderDto orderDto) {
         Expert expert = expertService.getById(orderDto.getExpertId());
+        if(expert == null)
+            throw new NotFoundExpertException();
         Order order = orderRepository.getById(orderDto.getId());
-        order.setOrderStatus(OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE);
-        order.setExpert(expert);
-        Order returnedOrder = save(order);
+        if(order == null)
+            throw new NotFoundOrderException();
+        Order toSaveOrder = new Order(order.getBidPriceOrder(),order.getJobDescription(),order.getAddress()
+                ,order.getOrderRegistrationDate(),order.getOrderExecutionDate()
+                ,OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE,expert,order.getCustomer()
+                ,order.getService(),order.getOffers());
+        Order returnedOrder = save(toSaveOrder);
         OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
         return ResponseEntity.ok(returnedOrderDto);
     }

@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/customer")
 public class CustomerController {
@@ -23,7 +25,7 @@ public class CustomerController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<CustomerDto> save(@RequestBody CustomerDto customerDto) {
+    public ResponseEntity<CustomerDto> save(@Valid @RequestBody CustomerDto customerDto) {
         return customerService.save(customerDto);
     }
 

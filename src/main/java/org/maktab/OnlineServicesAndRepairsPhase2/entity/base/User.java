@@ -1,36 +1,43 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.entity.base;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
+import java.util.Date;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type",discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "user_role",discriminatorType = DiscriminatorType.STRING)
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity<Long> {
     private String firstName;
     private String lastName;
     @Column(unique = true)
+    @Email
     private String emailAddress;
     @Column(unique = true)
     private String nationalCode;
-    @Column(length = 8)
+    @Size(min = 8,message = "Password should have at least 8 characters!!!")
     private String password;
-    private Timestamp registrationDate;
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date registrationDate;
     private Integer credit;
     private Double balance;
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
     @Transient
     public String getDiscriminatorValue(){
         DiscriminatorValue val = this.getClass().getAnnotation( DiscriminatorValue.class );
@@ -42,28 +49,29 @@ public class User extends BaseEntity<Long> {
         this.password = password;
     }
 
-    public User(Long aLong, String firstName, String lastName, String emailAddress, String nationalCode, Timestamp registrationDate, Integer credit, Double balance, UserStatus userStatus) {
-        super(aLong);
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.emailAddress = emailAddress;
-        this.nationalCode = nationalCode;
-        this.registrationDate = registrationDate;
-        this.credit = credit;
-        this.balance = balance;
-        this.userStatus = userStatus;
-    }
-
-    public User(String firstName, String lastName, String nationalCode, String password) {
+    public User(String firstName, String lastName, String nationalCode, String password,UserType userType) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.nationalCode = nationalCode;
         this.password = password;
+        this.userType = userType;
     }
 
     public User(Long aLong, String password) {
         super(aLong);
         this.password = password;
+    }
+
+    public User(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.emailAddress = emailAddress;
+        this.nationalCode = nationalCode;
+        this.password = password;
+        this.credit = credit;
+        this.balance = balance;
+        this.userStatus = userStatus;
+        this.userType = userType;
     }
 
     public User(Long aLong) {
@@ -78,7 +86,6 @@ public class User extends BaseEntity<Long> {
                 ", emailAddress='" + emailAddress + '\'' +
                 ", nationalCode='" + nationalCode + '\'' +
                 ", password='" + password + '\'' +
-                ", registrationDate=" + registrationDate +
                 ", credit=" + credit +
                 ", balance=" + balance +
                 ", userStatus=" + userStatus;

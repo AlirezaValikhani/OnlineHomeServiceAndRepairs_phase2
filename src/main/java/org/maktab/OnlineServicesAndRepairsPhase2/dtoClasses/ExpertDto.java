@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -22,13 +23,12 @@ public class ExpertDto {
     private String emailAddress;
     private String nationalCode;
     private String password;
-    private Timestamp registrationDate;
     private Integer credit;
     private Double balance;
 
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
-    private byte[] image;
+    private MultipartFile image;
     private String city;
     private Long[] servicesId;
 }

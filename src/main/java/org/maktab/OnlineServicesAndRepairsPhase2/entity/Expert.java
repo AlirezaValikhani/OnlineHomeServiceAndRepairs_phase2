@@ -6,20 +6,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Set;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
 @DiscriminatorValue("expert")
 public class Expert extends User {
-    @Column(name = "image")
-    @Lob
     private byte[] image;
     private String city;
     @OneToMany(mappedBy = "expert")
@@ -40,10 +38,17 @@ public class Expert extends User {
         super(password);
     }
 
-    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Timestamp registrationDate, Integer credit, Double balance, UserStatus userStatus, byte[] image, String city) {
-        super(firstName, lastName, emailAddress, nationalCode, password, registrationDate, credit, balance, userStatus);
+    /*public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, byte[] image, String city) {
+        super(firstName, lastName, emailAddress, nationalCode, password, credit, balance);
         this.image = image;
         this.city = city;
+    }*/
+
+    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType, byte[] image, String city, Set<Specialty> services) {
+        super(firstName, lastName, emailAddress, nationalCode, password, credit, balance, userStatus, userType);
+        this.image = image;
+        this.city = city;
+        this.services = services;
     }
 
     public Expert(Long aLong, String password) {

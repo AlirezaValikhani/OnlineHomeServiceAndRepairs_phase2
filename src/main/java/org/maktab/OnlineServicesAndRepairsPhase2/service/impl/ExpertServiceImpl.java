@@ -5,14 +5,18 @@ import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundSpecialtyException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.ExpertRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.ExpertService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.sql.Timestamp;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -55,25 +59,29 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
-    public ResponseEntity<ExpertDto> save(ExpertDto expertDto) {
+    public ResponseEntity<ExpertDto> save(ExpertDto expertDto) throws IOException {
         Set<Specialty> servicesSet = new HashSet<>();
         for (Long serviceId : expertDto.getServicesId()) {
-            servicesSet.add(specialtyService.getById(serviceId));
+            Specialty foundedSpecialty = specialtyService.getById(serviceId);
+            if(foundedSpecialty == null)
+                throw new NotFoundSpecialtyException();
+            servicesSet.add(foundedSpecialty);
         }
-        Expert expert = mapper.map(expertDto, Expert.class);
-        expert.setServices(servicesSet);
-        Timestamp registrationDate = new Timestamp(System.currentTimeMillis());
-        expert.setRegistrationDate(registrationDate);
-        expert.setUserStatus(UserStatus.WAITING_APPROVAL);
+        Expert expert = new Expert(expertDto.getFirstName(),expertDto.getLastName(),expertDto.getEmailAddress(),
+                expertDto.getNationalCode(),expertDto.getPassword(),expertDto.getCredit(),expertDto.getBalance(),
+                UserStatus.WAITING_APPROVAL,UserType.EXPERT,expertDto.getImage().getBytes(),
+                expertDto.getCity(),servicesSet);
         Expert returnedExpert = expertRepository.save(expert);
         ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
-        return ResponseEntity.ok(returnedExpertDto);
+        return new ResponseEntity<>(returnedExpertDto, HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<ExpertDto> changePassword(ExpertDto expertDto) {
         Expert expert = mapper.map(expertDto, Expert.class);
         Expert foundedExpert = expertRepository.getById(expert.getId());
+        if(foundedExpert.getNationalCode() == null)
+            throw new NotFoundExpertException();
         foundedExpert.setPassword(expert.getPassword());
         Expert returnedExpert = expertRepository.save(foundedExpert);
         ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
@@ -96,6 +104,8 @@ public class ExpertServiceImpl implements ExpertService {
     @Override
     public Expert expertApproval(Long id) {
         Expert expert = expertRepository.getById(id);
+        if(expert.getNationalCode() == null)
+            throw new NotFoundExpertException();
         expert.setUserStatus(UserStatus.ACCEPTED);
         return expert;
     }
@@ -109,17 +119,4 @@ public class ExpertServiceImpl implements ExpertService {
     public void updateProfessionalStatus(Long id) {
         expertRepository.updateProfessionalStatus(id);
     }
-
-
-    /*public byte[] getImage(byte[] image) {
-            try {
-                BufferedImage bufferedImage= ImageIO.read(image);
-                ByteArrayOutputStream byteOutStream=new ByteArrayOutputStream();
-                ImageIO.write(bufferedImage, "png", byteOutStream);
-                return byteOutStream.toByteArray();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        return null;
-    }*/
 }

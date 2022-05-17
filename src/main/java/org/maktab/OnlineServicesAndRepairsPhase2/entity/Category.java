@@ -6,6 +6,9 @@ import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.BaseEntity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -14,6 +17,8 @@ import java.util.Set;
 @Entity
 public class Category extends BaseEntity<Long> {
     @Column(unique = true)
+    @NotNull
+    @Size(min = 2,message = "Category name should have at least 2 characters!!!")
     private String name;
     @OneToOne
     private Category superCategory;

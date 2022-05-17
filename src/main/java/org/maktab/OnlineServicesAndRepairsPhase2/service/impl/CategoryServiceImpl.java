@@ -3,9 +3,11 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CategoryDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.DuplicateNameException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CategoryRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CategoryService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +37,12 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public ResponseEntity<CategoryDto> addCategory(CategoryDto categoryDto){
         Category category = mapper.map(categoryDto, Category.class);
+        Category foundedCategory = categoryRepository.findByName(category.getName());
+        if(foundedCategory != null)
+            throw new DuplicateNameException();
         Category returnedCategory = categoryRepository.save(category);
         CategoryDto returnedCategoryDto = modelMapper.map(returnedCategory, CategoryDto.class);
-        return ResponseEntity.ok(returnedCategoryDto);
+        return new ResponseEntity<>(returnedCategoryDto, HttpStatus.CREATED);
     }
 
     @Override

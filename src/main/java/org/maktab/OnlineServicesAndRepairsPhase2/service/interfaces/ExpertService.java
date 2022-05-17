@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface ExpertService {
     Expert findByEmailAddress(String email);
     List<Expert> findAcceptedExperts();
     Expert findExpertServices(Long expertId);
-    ResponseEntity<ExpertDto> save(ExpertDto expertDto);
+    ResponseEntity<ExpertDto> save(ExpertDto expertDto) throws IOException;
     ResponseEntity<ExpertDto> changePassword(ExpertDto expertDto);
     ResponseEntity<List<ExpertDto>> waitingApprovalExperts();
     Expert expertApproval(Long id);

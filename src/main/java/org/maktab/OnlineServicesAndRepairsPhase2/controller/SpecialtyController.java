@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/specialty")
 public class SpecialtyController {
@@ -23,7 +25,7 @@ public class SpecialtyController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<SpecialtyDto> save(@RequestBody SpecialtyDto specialtyDto) {
+    public ResponseEntity<SpecialtyDto> save(@Valid @RequestBody SpecialtyDto specialtyDto) {
         return specialtyService.save(specialtyDto);
     }
 

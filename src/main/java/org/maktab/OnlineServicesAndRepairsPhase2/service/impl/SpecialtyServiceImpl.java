@@ -3,10 +3,14 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.SpecialtyDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCategoryException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundSpecialtyException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.SpecialtyRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.SpecialtyService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.transaction.Transactional;
@@ -43,18 +47,22 @@ public class SpecialtyServiceImpl implements SpecialtyService {
 
     @Override
     public ResponseEntity<SpecialtyDto> save(SpecialtyDto specialtyDto) {
-        Category category = categoryService.getById(specialtyDto.getCategoryId());
-        Specialty specialty = getById(specialtyDto.getId());
-        specialty.setCategory(category);
+        Specialty specialty = mapper.map(specialtyDto, Specialty.class);
         Specialty returnedSpecialty = save(specialty);
+        Category category = categoryService.getById(specialtyDto.getCategoryId());
+        if(category == null)
+            throw new NotFoundCategoryException();
+        specialty.setCategory(category);
         SpecialtyDto returnedSpecialtyDto = modelMapper.map(returnedSpecialty, SpecialtyDto.class);
-        return ResponseEntity.ok(returnedSpecialtyDto);
+        return new ResponseEntity<>(returnedSpecialtyDto, HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<SpecialtyDto> addCategoryToSpecialty(SpecialtyDto specialtyDto) {
         Category category = categoryService.getById(specialtyDto.getCategoryId());
         Specialty specialty = getById(specialtyDto.getId());
+        if(specialty == null)
+            throw new NotFoundSpecialtyException();
         specialty.setCategory(category);
         Specialty returnedSpecialty = save(specialty);
         SpecialtyDto returnedSpecialtyDto = modelMapper.map(returnedSpecialty, SpecialtyDto.class);

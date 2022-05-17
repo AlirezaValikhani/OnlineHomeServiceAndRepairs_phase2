@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.dozer.DozerBeanMapper;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<CategoryDto> save(@RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> save(@Valid @RequestBody CategoryDto categoryDto) {
         return categoryService.addCategory(categoryDto);
     }
 

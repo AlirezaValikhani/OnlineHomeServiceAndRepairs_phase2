@@ -3,11 +3,14 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.DuplicateNationalCodeException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -39,10 +42,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<CustomerDto> save(CustomerDto customerDto) {
         Customer customer = mapper.map(customerDto, Customer.class);
-        customer.setUserStatus(UserStatus.NEW);
-        Customer returnedCustomer = customerRepository.save(customer);
+        Customer foundedCustomer = customerRepository.findByNationalCode(customer.getNationalCode());
+        if(foundedCustomer != null)
+            throw new DuplicateNationalCodeException();
+        Customer toSaveCustomer = new Customer(customer.getFirstName(),customer.getLastName(),
+                customer.getEmailAddress(),customer.getNationalCode(),customer.getPassword(),customer.getCredit(),
+                customer.getBalance(),UserStatus.NEW,UserType.CUSTOMER);
+        Customer returnedCustomer = customerRepository.save(toSaveCustomer);
         CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
-            return ResponseEntity.ok(returnedCustomerDto);
+        return new ResponseEntity<>(returnedCustomerDto, HttpStatus.CREATED);
     }
 
     @Override
@@ -54,6 +62,8 @@ public class CustomerServiceImpl implements CustomerService {
     public ResponseEntity<CustomerDto> changePassword(CustomerDto customerDto) {
         Customer customer = mapper.map(customerDto, Customer.class);
         Customer foundedCustomer = customerRepository.getById(customer.getId());
+        if(customer.getNationalCode() == null)
+            throw new NotFoundCustomerException();
         Customer returnedCustomer = customerRepository.save(foundedCustomer);
         CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
         return ResponseEntity.ok(returnedCustomerDto);
