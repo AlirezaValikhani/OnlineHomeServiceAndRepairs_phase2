@@ -143,6 +143,7 @@ public class ExpertServiceImpl implements ExpertService {
             if(result == 30) {
                 Integer finalCredit = expert.getCredit() - 5;
                 expert.setCredit(finalCredit);
+                saveExpertObject(expert);
             }
         }
         return ResponseEntity.ok("Work started");

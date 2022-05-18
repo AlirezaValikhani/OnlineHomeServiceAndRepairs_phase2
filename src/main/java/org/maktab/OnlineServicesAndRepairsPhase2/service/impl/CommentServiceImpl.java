@@ -43,7 +43,10 @@ public class CommentServiceImpl implements CommentService {
             throw new NotFoundCustomerException();
         Expert expert = expertService.getById(commentDto.getExpertId());
         if(expert == null)
-            throw new NotFoundExpertException();expertService.saveExpertObject(expert);
+            throw new NotFoundExpertException();
+        Integer previousCredit = expert.getCredit();
+        expert.setCredit(commentDto.getCredit() + previousCredit);
+        expertService.saveExpertObject(expert);
         Comment toSaveComment = new Comment(comment.getComment(),customer,expert);
         Comment returnedComment = commentRepository.save(toSaveComment);
         CommentDto returnedCommentDto = modelMapper.map(returnedComment, CommentDto.class);

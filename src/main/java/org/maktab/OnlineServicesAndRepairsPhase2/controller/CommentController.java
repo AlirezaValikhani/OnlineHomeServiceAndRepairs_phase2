@@ -17,7 +17,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/saveCommentAndRating")
     public ResponseEntity<CommentDto> save(@RequestBody CommentDto commentDto) {
         return commentService.addCommentAndRating(commentDto);
     }

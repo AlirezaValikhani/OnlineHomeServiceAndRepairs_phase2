@@ -12,6 +12,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.OrderRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.OrderService;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerServiceImpl customerService, SpecialtyServiceImpl specialtyService, ExpertServiceImpl expertService) {
+    public OrderServiceImpl(OrderRepository orderRepository, @Lazy CustomerServiceImpl customerService, SpecialtyServiceImpl specialtyService, @Lazy ExpertServiceImpl expertService) {
         this.orderRepository = orderRepository;
         this.customerService = customerService;
         this.specialtyService = specialtyService;
