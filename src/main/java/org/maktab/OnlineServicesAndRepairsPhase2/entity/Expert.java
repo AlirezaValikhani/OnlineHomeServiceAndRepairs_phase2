@@ -38,12 +38,6 @@ public class Expert extends User {
         super(password);
     }
 
-    /*public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, byte[] image, String city) {
-        super(firstName, lastName, emailAddress, nationalCode, password, credit, balance);
-        this.image = image;
-        this.city = city;
-    }*/
-
     public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType, byte[] image, String city, Set<Specialty> services) {
         super(firstName, lastName, emailAddress, nationalCode, password, credit, balance, userStatus, userType);
         this.image = image;

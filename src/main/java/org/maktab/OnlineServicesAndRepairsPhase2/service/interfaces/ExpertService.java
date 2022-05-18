@@ -22,6 +22,7 @@ public interface ExpertService {
     Expert expertApproval(Long id);
     Expert getById(Long id);
     void updateProfessionalStatus(Long id);
-    void startOfWork(OrderDto orderDto);
-    void done(OrderDto orderDto);
+    ResponseEntity<String> startOfWork(OrderDto orderDto);
+    ResponseEntity<String> done(OrderDto orderDto);
+    Expert saveExpertObject(Expert expert);
 }

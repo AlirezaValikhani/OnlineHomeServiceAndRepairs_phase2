@@ -1,6 +1,7 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceImpl;
 import org.springframework.http.MediaType;
@@ -45,4 +46,16 @@ public class ExpertController {
     public void expertApproval(@RequestBody ExpertDto expertDto) {
         expertService.updateProfessionalStatus(expertDto.getId());
     }
+
+    @PostMapping("/startOfWork")
+    public ResponseEntity<String> startOfWork(@RequestBody OrderDto orderDto) {
+        return expertService.startOfWork(orderDto);
+    }
+
+    @PostMapping("/done")
+    public ResponseEntity<String> done(@RequestBody OrderDto orderDto) {
+        return expertService.done(orderDto);
+    }
+
+
 }

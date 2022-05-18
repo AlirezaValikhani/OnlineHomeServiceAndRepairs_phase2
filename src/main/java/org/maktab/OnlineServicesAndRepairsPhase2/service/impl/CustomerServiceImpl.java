@@ -3,10 +3,13 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.DuplicateNationalCodeException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
 import org.modelmapper.ModelMapper;
@@ -20,11 +23,13 @@ import javax.transaction.Transactional;
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final OrderServiceImpl orderService;
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, OrderServiceImpl orderService) {
         this.customerRepository = customerRepository;
+        this.orderService = orderService;
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
     }
@@ -70,7 +75,18 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void payment() {
-
+    public ResponseEntity<String> payment(CustomerDto customerDto) {
+        Order order = orderService.getById(customerDto.getOrderId()[0]);
+        if(order == null)
+            throw new NotFoundOrderException();
+        Customer customer = customerRepository.getById(customerDto.getId());
+        if(customer == null)
+            throw new NotFoundCustomerException();
+        Double cost = order.getBidPriceOrder() - customer.getBalance();
+        customer.setBalance(cost);
+        Customer returnedCustomer = customerRepository.save(customer);
+        order.setOrderStatus(OrderStatus.PAID);
+        Order returnedOrder = orderService.save(order);
+        return ResponseEntity.ok("Order ID : " + returnedOrder.getId() + "paid successfully");
     }
 }

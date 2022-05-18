@@ -129,7 +129,7 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
-    public void startOfWork(OrderDto orderDto) {
+    public ResponseEntity<String> startOfWork(OrderDto orderDto) {
         Order order = orderService.getById(orderDto.getId());
         if(order == null)
             throw new NotFoundOrderException();
@@ -138,20 +138,28 @@ public class ExpertServiceImpl implements ExpertService {
         if(order.getOrderExecutionDate().equals(timestamp)){
             Long currentTime = timestamp.getTime();
             Long executionTime = order.getOrderExecutionDate().getTime();
-            Long result = currentTime - executionTime;
+            long result = currentTime - executionTime;
             Expert expert = getById(orderDto.getExpertId());
             if(result == 30) {
                 Integer finalCredit = expert.getCredit() - 5;
                 expert.setCredit(finalCredit);
             }
         }
+        return ResponseEntity.ok("Work started");
     }
 
     @Override
-    public void done(OrderDto orderDto) {
+    public ResponseEntity<String> done(OrderDto orderDto) {
         Order order = orderService.getById(orderDto.getId());
         if(order == null)
             throw new NotFoundOrderException();
         order.setOrderStatus(OrderStatus.DONE);
+        orderService.save(order);
+        return ResponseEntity.ok("Work done");
+    }
+
+    @Override
+    public Expert saveExpertObject(Expert expert) {
+        return expertRepository.save(expert);
     }
 }
