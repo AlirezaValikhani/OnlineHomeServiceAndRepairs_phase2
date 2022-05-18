@@ -2,11 +2,15 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundSpecialtyException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.ExpertRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.ExpertService;
@@ -17,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +33,15 @@ import java.util.Set;
 public class ExpertServiceImpl implements ExpertService {
     private final ExpertRepository expertRepository;
     private final SpecialtyServiceImpl specialtyService;
+    private final OrderServiceImpl orderService;
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
-    private Integer credit = 10;
+    private final Integer credit = 10;
 
-    public ExpertServiceImpl(ExpertRepository expertRepository, SpecialtyServiceImpl specialtyService) {
+    public ExpertServiceImpl(ExpertRepository expertRepository, SpecialtyServiceImpl specialtyService, OrderServiceImpl orderService) {
         this.expertRepository = expertRepository;
         this.specialtyService = specialtyService;
+        this.orderService = orderService;
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
     }
@@ -118,5 +126,32 @@ public class ExpertServiceImpl implements ExpertService {
     @Override
     public void updateProfessionalStatus(Long id) {
         expertRepository.updateProfessionalStatus(id);
+    }
+
+    @Override
+    public void startOfWork(OrderDto orderDto) {
+        Order order = orderService.getById(orderDto.getId());
+        if(order == null)
+            throw new NotFoundOrderException();
+        order.setOrderStatus(OrderStatus.STARTED);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        if(order.getOrderExecutionDate().equals(timestamp)){
+            Long currentTime = timestamp.getTime();
+            Long executionTime = order.getOrderExecutionDate().getTime();
+            Long result = currentTime - executionTime;
+            Expert expert = getById(orderDto.getExpertId());
+            if(result == 30) {
+                Integer finalCredit = expert.getCredit() - 5;
+                expert.setCredit(finalCredit);
+            }
+        }
+    }
+
+    @Override
+    public void done(OrderDto orderDto) {
+        Order order = orderService.getById(orderDto.getId());
+        if(order == null)
+            throw new NotFoundOrderException();
+        order.setOrderStatus(OrderStatus.DONE);
     }
 }

@@ -68,4 +68,9 @@ public class CustomerServiceImpl implements CustomerService {
         CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
         return ResponseEntity.ok(returnedCustomerDto);
     }
+
+    @Override
+    public void payment() {
+
+    }
 }

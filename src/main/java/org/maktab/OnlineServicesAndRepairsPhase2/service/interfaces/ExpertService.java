@@ -1,6 +1,7 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
@@ -21,4 +22,6 @@ public interface ExpertService {
     Expert expertApproval(Long id);
     Expert getById(Long id);
     void updateProfessionalStatus(Long id);
+    void startOfWork(OrderDto orderDto);
+    void done(OrderDto orderDto);
 }
