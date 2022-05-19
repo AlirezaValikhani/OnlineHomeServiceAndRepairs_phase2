@@ -12,4 +12,5 @@ public interface CustomerService {
     Customer getById(Long id);
     ResponseEntity<CustomerDto> changePassword(CustomerDto customerDto);
     ResponseEntity<String> payment(CustomerDto customerDto);
+    ResponseEntity<String> rating(CustomerDto customerDto);
 }

@@ -30,4 +30,9 @@ public class CustomerController {
     public ResponseEntity<String> payment(@RequestBody CustomerDto customerDto) {
         return customerService.payment(customerDto);
     }
+
+    @PostMapping("/rating")
+    public ResponseEntity<String> rating(@RequestBody CustomerDto customerDto) {
+        return customerService.rating(customerDto);
+    }
 }

@@ -36,7 +36,7 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public ResponseEntity<CommentDto> addCommentAndRating(CommentDto commentDto) {
+    public ResponseEntity<CommentDto> addComment(CommentDto commentDto) {
         Comment comment = mapper.map(commentDto, Comment.class);
         Customer customer = customerService.getById(commentDto.getCustomerId());
         if(customer == null)
@@ -44,9 +44,6 @@ public class CommentServiceImpl implements CommentService {
         Expert expert = expertService.getById(commentDto.getExpertId());
         if(expert == null)
             throw new NotFoundExpertException();
-        Integer previousCredit = expert.getCredit();
-        expert.setCredit(commentDto.getCredit() + previousCredit);
-        expertService.saveExpertObject(expert);
         Comment toSaveComment = new Comment(comment.getComment(),customer,expert);
         Comment returnedComment = commentRepository.save(toSaveComment);
         CommentDto returnedCommentDto = modelMapper.map(returnedComment, CommentDto.class);

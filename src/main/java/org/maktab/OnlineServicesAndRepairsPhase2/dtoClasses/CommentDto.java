@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 public class CommentDto {
     private String comment;
-    private Integer credit;
     private Long customerId;
     private Long expertId;
 }

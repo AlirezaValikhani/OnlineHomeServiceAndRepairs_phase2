@@ -4,5 +4,5 @@ import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CommentDto;
 import org.springframework.http.ResponseEntity;
 
 public interface CommentService {
-    ResponseEntity<CommentDto> addCommentAndRating(CommentDto commentDto);
+    ResponseEntity<CommentDto> addComment(CommentDto commentDto);
 }

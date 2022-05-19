@@ -3,12 +3,14 @@ package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.DuplicateNationalCodeException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
@@ -23,12 +25,14 @@ import javax.transaction.Transactional;
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final ExpertServiceImpl expertService;
     private final OrderServiceImpl orderService;
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, OrderServiceImpl orderService) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, ExpertServiceImpl expertService, OrderServiceImpl orderService) {
         this.customerRepository = customerRepository;
+        this.expertService = expertService;
         this.orderService = orderService;
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
@@ -84,9 +88,21 @@ public class CustomerServiceImpl implements CustomerService {
             throw new NotFoundCustomerException();
         Double cost = order.getBidPriceOrder() - customer.getBalance();
         customer.setBalance(cost);
-        Customer returnedCustomer = customerRepository.save(customer);
+        customerRepository.save(customer);
         order.setOrderStatus(OrderStatus.PAID);
         Order returnedOrder = orderService.save(order);
         return ResponseEntity.ok("Order ID : " + returnedOrder.getId() + "paid successfully");
+    }
+
+    @Override
+    public ResponseEntity<String> rating(CustomerDto customerDto) {
+        Expert expert = expertService.getById(customerDto.getExpertId());
+        if(expert == null)
+            throw new NotFoundExpertException();
+        Integer previousCredit = expert.getCredit();
+        expert.setCredit(customerDto.getCredit() + previousCredit);
+        expertService.saveExpertObject(expert);
+        return ResponseEntity.ok("You gave " + customerDto.getCredit() + " point to " + expert.getFirstName()
+                + expert.getLastName());
     }
 }
