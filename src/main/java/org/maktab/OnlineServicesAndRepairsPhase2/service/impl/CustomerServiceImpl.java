@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -27,15 +28,11 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final ExpertServiceImpl expertService;
     private final OrderServiceImpl orderService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
 
     public CustomerServiceImpl(CustomerRepository customerRepository, ExpertServiceImpl expertService, OrderServiceImpl orderService) {
         this.customerRepository = customerRepository;
         this.expertService = expertService;
         this.orderService = orderService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @Override
@@ -49,17 +46,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ResponseEntity<CustomerDto> save(CustomerDto customerDto) {
-        Customer customer = mapper.map(customerDto, Customer.class);
+    public Customer save(Customer customer) {
         Customer foundedCustomer = customerRepository.findByNationalCode(customer.getNationalCode());
         if(foundedCustomer != null)
             throw new DuplicateNationalCodeException();
         Customer toSaveCustomer = new Customer(customer.getFirstName(),customer.getLastName(),
                 customer.getEmailAddress(),customer.getNationalCode(),customer.getPassword(),customer.getCredit(),
                 customer.getBalance(),UserStatus.NEW,UserType.CUSTOMER);
-        Customer returnedCustomer = customerRepository.save(toSaveCustomer);
-        CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
-        return new ResponseEntity<>(returnedCustomerDto, HttpStatus.CREATED);
+        return customerRepository.save(toSaveCustomer);
     }
 
     @Override
@@ -68,41 +62,40 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ResponseEntity<CustomerDto> changePassword(CustomerDto customerDto) {
-        Customer customer = mapper.map(customerDto, Customer.class);
+    public Customer changePassword(Customer customer) {
         Customer foundedCustomer = customerRepository.getById(customer.getId());
-        if(customer.getNationalCode() == null)
+        if(foundedCustomer == null)
             throw new NotFoundCustomerException();
-        Customer returnedCustomer = customerRepository.save(foundedCustomer);
-        CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
-        return ResponseEntity.ok(returnedCustomerDto);
+        foundedCustomer.setPassword(customer.getPassword());
+        return customerRepository.save(foundedCustomer);
     }
 
     @Override
-    public ResponseEntity<String> payment(CustomerDto customerDto) {
-        Order order = orderService.getById(customerDto.getOrderId()[0]);
+    public String payment(Customer customer) {
+        Order foundedOrder= customer.getOrders().stream().findFirst().get();
+        Order order = orderService.getById(foundedOrder.getId());
         if(order == null)
             throw new NotFoundOrderException();
-        Customer customer = customerRepository.getById(customerDto.getId());
-        if(customer == null)
+        Customer foundedCustomer = customerRepository.getById(customer.getId());
+        if(foundedCustomer == null)
             throw new NotFoundCustomerException();
-        Double cost = order.getBidPriceOrder() - customer.getBalance();
-        customer.setBalance(cost);
-        customerRepository.save(customer);
+        Double cost = order.getBidPriceOrder() - foundedCustomer.getBalance();
+        foundedCustomer.setBalance(cost);
+        customerRepository.save(foundedCustomer);
         order.setOrderStatus(OrderStatus.PAID);
         Order returnedOrder = orderService.save(order);
-        return ResponseEntity.ok("Order ID : " + returnedOrder.getId() + "paid successfully");
+        return "Order ID : " + returnedOrder.getId() + "paid successfully";
     }
 
     @Override
-    public ResponseEntity<String> rating(CustomerDto customerDto) {
-        Expert expert = expertService.getById(customerDto.getExpertId());
+    public String rating(Customer customer,Long expertId) {
+        Expert expert = expertService.getById(expertId);
         if(expert == null)
             throw new NotFoundExpertException();
         Integer previousCredit = expert.getCredit();
-        expert.setCredit(customerDto.getCredit() + previousCredit);
+        expert.setCredit(customer.getCredit() + previousCredit);
         expertService.saveExpertObject(expert);
-        return ResponseEntity.ok("You gave " + customerDto.getCredit() + " point to " + expert.getFirstName()
-                + expert.getLastName());
+        return "You gave " + customer.getCredit() + " point to " + expert.getFirstName()
+                + expert.getLastName();
     }
 }

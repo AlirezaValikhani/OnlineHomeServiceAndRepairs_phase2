@@ -1,8 +1,8 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CommentDto;
-import org.springframework.http.ResponseEntity;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Comment;
 
 public interface CommentService {
-    ResponseEntity<CommentDto> addComment(CommentDto commentDto);
+    Comment addComment(Comment comment);
 }

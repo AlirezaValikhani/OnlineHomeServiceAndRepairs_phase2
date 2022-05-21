@@ -27,43 +27,28 @@ public class OfferServiceImpl implements OfferService {
     private final OfferRepository offerRepository;
     private final OrderServiceImpl orderService;
     private final ExpertServiceImpl expertService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
 
     public OfferServiceImpl(OfferRepository offerRepository, OrderServiceImpl orderService, ExpertServiceImpl expertService) {
         this.offerRepository = offerRepository;
         this.orderService = orderService;
         this.expertService = expertService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @Override
-    public ResponseEntity<List<OfferDto>> findOfferListByOrderId(OfferDto offerDto) {
-        Order foundedOrder = orderService.getById(offerDto.getOrderId());
+    public List<Offer> findOfferListByOrderId(Offer offer) {
+        Order foundedOrder = orderService.getById(offer.getOrder().getId());
         if(foundedOrder == null)
             throw new NotFoundOrderException();
-        List<Offer> offers = offerRepository.getOrderOffers(offerDto.getOrderId());
-        List<OfferDto> returnedOffers = new ArrayList<>();
-        for (Offer o : offers) {
-            OfferDto returnedOfferDto = modelMapper.map(o, OfferDto.class);
-            returnedOffers.add(returnedOfferDto);
-        }
-        return ResponseEntity.ok(returnedOffers);
+        return offerRepository.getOrderOffers(offer.getOrder().getId());
+
     }
 
     @Override
-    public ResponseEntity<List<OfferDto>> showOfferList(OfferDto offerDto)  {
-        Order foundedOrder = orderService.getById(offerDto.getOrderId());
+    public List<Offer> showOfferList(Offer offer)  {
+        Order foundedOrder = orderService.getById(offer.getOrder().getId());
         if(foundedOrder == null)
             throw new NotFoundOrderException();
-        List<Offer> offerList = offerRepository.getOrderOffers(offerDto.getOrderId());
-        List<OfferDto> returnedOffers = new ArrayList<>();
-        for (Offer o : offerList) {
-            OfferDto returnedOfferDto = modelMapper.map(o, OfferDto.class);
-            returnedOffers.add(returnedOfferDto);
-        }
-        return ResponseEntity.ok(returnedOffers);
+        return offerRepository.getOrderOffers(offer.getOrder().getId());
     }
 
     @Override
@@ -75,21 +60,16 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public ResponseEntity<OfferDto> save(OfferDto offerDto) {
-        Order order = orderService.getById(offerDto.getOrderId());
+    public Offer save(Offer offer) {
+        Order order = orderService.getById(offer.getOrder().getId());
         if(order == null)
             throw new NotFoundOrderException();
-        Expert expert = expertService.getById(offerDto.getExpertId());
+        Expert expert = expertService.getById(offer.getOrder().getId());
         if(expert == null)
             throw new NotFoundExpertException();
-        Offer offer = mapper.map(offerDto, Offer.class);
-        if (offer != null) {
             order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SELECTION);
             Offer toSaveOffer = new Offer(offer.getDateAndTimeOfBidSubmission(),offer.getBidPriceOffer()
                     ,offer.getDurationOfWork(),offer.getStartTime(),order,expert);
-            Offer returnedOffer = offerRepository.save(toSaveOffer);
-            OfferDto returnedOfferDto = modelMapper.map(returnedOffer, OfferDto.class);
-            return new ResponseEntity<>(returnedOfferDto, HttpStatus.CREATED);
-        } else return ResponseEntity.notFound().build();
+            return offerRepository.save(toSaveOffer);
     }
 }

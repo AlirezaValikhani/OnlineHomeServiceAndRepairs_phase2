@@ -23,30 +23,23 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final CustomerServiceImpl customerService;
     private final ExpertServiceImpl expertService;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
 
     public CommentServiceImpl(CommentRepository commentRepository, CustomerServiceImpl customerService, ExpertServiceImpl expertService) {
         this.commentRepository = commentRepository;
         this.customerService = customerService;
         this.expertService = expertService;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
 
     @Override
-    public ResponseEntity<CommentDto> addComment(CommentDto commentDto) {
-        Comment comment = mapper.map(commentDto, Comment.class);
-        Customer customer = customerService.getById(commentDto.getCustomerId());
+    public Comment addComment(Comment comment) {
+        Customer customer = customerService.getById(comment.getCustomer().getId());
         if(customer == null)
             throw new NotFoundCustomerException();
-        Expert expert = expertService.getById(commentDto.getExpertId());
+        Expert expert = expertService.getById(comment.getExpert().getId());
         if(expert == null)
             throw new NotFoundExpertException();
         Comment toSaveComment = new Comment(comment.getComment(),customer,expert);
-        Comment returnedComment = commentRepository.save(toSaveComment);
-        CommentDto returnedCommentDto = modelMapper.map(returnedComment, CommentDto.class);
-        return new ResponseEntity<>(returnedCommentDto, HttpStatus.CREATED);
+        return commentRepository.save(toSaveComment);
     }
 }

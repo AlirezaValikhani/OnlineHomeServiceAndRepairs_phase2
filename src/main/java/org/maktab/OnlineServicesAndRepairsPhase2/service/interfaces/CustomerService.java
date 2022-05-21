@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 public interface CustomerService {
     Customer findByNationalCode(String nationalCode);
     Customer findByEmailAddress(String email);
-    ResponseEntity<CustomerDto> save(CustomerDto customerDto);
+    Customer save(Customer customer);
     Customer getById(Long id);
-    ResponseEntity<CustomerDto> changePassword(CustomerDto customerDto);
-    ResponseEntity<String> payment(CustomerDto customerDto);
-    ResponseEntity<String> rating(CustomerDto customerDto);
+    Customer changePassword(Customer customer);
+    String payment(Customer customer);
+    String rating(Customer customer,Long expertId);
 }

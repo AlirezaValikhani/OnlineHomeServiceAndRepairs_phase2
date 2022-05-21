@@ -9,6 +9,6 @@ public interface SpecialtyService {
     Specialty findByName(String serviceName);
     Specialty getById(Long id);
     Specialty save(Specialty specialty);
-    ResponseEntity<SpecialtyDto> save(SpecialtyDto specialtyDto);
-    ResponseEntity<SpecialtyDto> addCategoryToSpecialty(SpecialtyDto specialtyDto);
+    Specialty addSpecialty(Specialty specialty,Long categoryId);
+    Specialty addCategoryToSpecialty(Specialty specialty);
 }

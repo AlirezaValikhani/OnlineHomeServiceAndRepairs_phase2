@@ -7,6 +7,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.CategoryServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceImpl;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,18 +20,28 @@ import javax.validation.Valid;
 @RequestMapping("/specialty")
 public class SpecialtyController {
     private final SpecialtyServiceImpl specialtyService;
+    private final DozerBeanMapper mapper;
+    private final ModelMapper modelMapper;
 
     public SpecialtyController(SpecialtyServiceImpl specialtyService, CategoryServiceImpl categoryService) {
         this.specialtyService = specialtyService;
+        this.mapper = new DozerBeanMapper();
+        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/save")
     public ResponseEntity<SpecialtyDto> save(@Valid @RequestBody SpecialtyDto specialtyDto) {
-        return specialtyService.save(specialtyDto);
+        Specialty specialty = mapper.map(specialtyDto, Specialty.class);
+        Specialty returnedSpecialty = specialtyService.addSpecialty(specialty,specialtyDto.getCategoryId());
+        SpecialtyDto returnedSpecialtyDto = modelMapper.map(returnedSpecialty, SpecialtyDto.class);
+        return new ResponseEntity<>(returnedSpecialtyDto, HttpStatus.CREATED);
     }
 
     @PostMapping("/addCategoryToSpecialty")
     public ResponseEntity<SpecialtyDto> addCategoryToSpecialty(@RequestBody SpecialtyDto specialtyDto) {
-       return specialtyService.addCategoryToSpecialty(specialtyDto);
+        Specialty specialty = mapper.map(specialtyDto, Specialty.class);
+        Specialty returnedSpecialty = specialtyService.addCategoryToSpecialty(specialty);
+        SpecialtyDto returnedSpecialtyDto = modelMapper.map(returnedSpecialty, SpecialtyDto.class);
+        return ResponseEntity.ok(returnedSpecialtyDto);
     }
 }

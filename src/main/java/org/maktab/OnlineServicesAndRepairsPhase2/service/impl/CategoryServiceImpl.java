@@ -20,13 +20,9 @@ import java.util.List;
 @Transactional
 public class CategoryServiceImpl implements CategoryService{
     private final CategoryRepository categoryRepository;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @Override
@@ -35,24 +31,16 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public ResponseEntity<CategoryDto> addCategory(CategoryDto categoryDto){
-        Category category = mapper.map(categoryDto, Category.class);
+    public Category addCategory(Category category){
         Category foundedCategory = categoryRepository.findByName(category.getName());
         if(foundedCategory != null)
             throw new DuplicateNameException();
-        Category returnedCategory = categoryRepository.save(category);
-        CategoryDto returnedCategoryDto = modelMapper.map(returnedCategory, CategoryDto.class);
-        return new ResponseEntity<>(returnedCategoryDto, HttpStatus.CREATED);
+        return categoryRepository.save(category);
     }
 
     @Override
-    public ResponseEntity<List<CategoryDto>> findAll() {
-        Iterable<Category> iterable = categoryRepository.findAll();
-        List<Category> objectResult = new ArrayList<>();
-        List<CategoryDto> result = new ArrayList<>();
-        iterable.forEach(objectResult::add);
-        objectResult.forEach(category -> result.add(modelMapper.map(category, CategoryDto.class)));
-        return ResponseEntity.ok(result);
+    public Iterable<Category> findAll() {
+        return categoryRepository.findAll();
     }
 
     @Override

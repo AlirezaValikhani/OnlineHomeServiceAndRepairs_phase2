@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface OfferService {
     Offer getById(Long id);
-    ResponseEntity<OfferDto> save(OfferDto offerDto);
-    ResponseEntity<List<OfferDto>> findOfferListByOrderId(OfferDto offerDto);
-    ResponseEntity<List<OfferDto>> showOfferList(OfferDto offerDto);
+    Offer save(Offer offer);
+    List<Offer> findOfferListByOrderId(Offer offer);
+    List<Offer> showOfferList(Offer offer);
 }

@@ -1,15 +1,11 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
-import org.dozer.DozerBeanMapper;
-import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.AdminDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Admin;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.AdminRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.AdminService;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,13 +18,10 @@ import java.util.List;
 @Transactional
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
-    private final DozerBeanMapper mapper;
-    private final ModelMapper modelMapper;
+
 
     public AdminServiceImpl(AdminRepository userRepository) {
         this.adminRepository = userRepository;
-        this.mapper = new DozerBeanMapper();
-        this.modelMapper = new ModelMapper();
     }
 
     @Override
@@ -37,26 +30,23 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public AdminDto addAdminByDefault() {
+    public Admin addAdminByDefault() {
         String firstName = "admin";
         String lastName = "admin";
         String nationalCode = "admin";
-        String password = "admin";
+        String password = "admin1234";
         Admin admin = new Admin(firstName, lastName, nationalCode, password, UserType.ADMIN);
-        Admin returnedAdmin = adminRepository.save(admin);
-        return modelMapper.map(returnedAdmin, AdminDto.class);
+        return adminRepository.save(admin);
     }
 
     @Override
-    public ResponseEntity<AdminDto> changeAdminPassword(AdminDto adminDto) {
-        Admin admin = mapper.map(adminDto, Admin.class);
+    public Admin changeAdminPassword(Admin admin) {
         Admin foundedAdmin = adminRepository.getById(admin.getId());
-        foundedAdmin.setPassword(adminDto.getPassword());
+        foundedAdmin.setPassword(admin.getPassword());
         Admin returnedAdmin = adminRepository.save(foundedAdmin);
-        AdminDto returnedAdminDto = modelMapper.map(returnedAdmin, AdminDto.class);
         if (returnedAdmin.getPassword().equals(admin.getPassword()))
-            return ResponseEntity.ok(returnedAdminDto);
-        else return ResponseEntity.notFound().build();
+            return returnedAdmin;
+        else return null;
     }
 
     @Override
