@@ -18,7 +18,6 @@ public class AdminController {
 
     public AdminController(AdminServiceImpl adminService) {
         this.adminService = adminService;
-
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
     }
