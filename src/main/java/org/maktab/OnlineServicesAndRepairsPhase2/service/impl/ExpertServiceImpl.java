@@ -27,14 +27,12 @@ public class ExpertServiceImpl implements ExpertService {
     private final ExpertRepository expertRepository;
     private final SpecialtyServiceImpl specialtyService;
     private final OrderServiceImpl orderService;
-    private final ExpertController expertController;
     private final Integer credit = 10;
 
-    public ExpertServiceImpl(ExpertRepository expertRepository, SpecialtyServiceImpl specialtyService, OrderServiceImpl orderService, ExpertController expertController) {
+    public ExpertServiceImpl(ExpertRepository expertRepository, SpecialtyServiceImpl specialtyService, OrderServiceImpl orderService) {
         this.expertRepository = expertRepository;
         this.specialtyService = specialtyService;
         this.orderService = orderService;
-        this.expertController = expertController;
     }
 
     @Override

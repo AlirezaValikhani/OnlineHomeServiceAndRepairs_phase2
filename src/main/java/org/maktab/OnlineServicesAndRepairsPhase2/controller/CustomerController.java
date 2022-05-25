@@ -32,6 +32,14 @@ public class CustomerController {
         return new ResponseEntity<>(returnedCustomerDto, HttpStatus.CREATED);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<CustomerDto> login(@Valid @RequestBody CustomerDto customerDto) {
+        Customer customer = mapper.map(customerDto, Customer.class);
+        Customer returnedCustomer = customerService.login(customer);
+        CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
+        return new ResponseEntity<>(returnedCustomerDto, HttpStatus.ACCEPTED);
+    }
+
     @PutMapping("/updatePassword")
     public ResponseEntity<CustomerDto> changePassword(@RequestBody CustomerDto customerDto) {
         Customer customer = mapper.map(customerDto, Customer.class);

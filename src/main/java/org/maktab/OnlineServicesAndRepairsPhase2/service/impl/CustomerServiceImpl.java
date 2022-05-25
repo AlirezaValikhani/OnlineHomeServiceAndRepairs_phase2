@@ -8,10 +8,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.DuplicateNationalCodeException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
 import org.modelmapper.ModelMapper;
@@ -97,5 +94,15 @@ public class CustomerServiceImpl implements CustomerService {
         expertService.saveExpertObject(expert);
         return "You gave " + customer.getCredit() + " point to " + expert.getFirstName()
                 + expert.getLastName();
+    }
+
+    @Override
+    public Customer login(Customer customer) {
+        Customer foundedCustomer = customerRepository.findByNationalCode(customer.getNationalCode());
+        if(foundedCustomer == null)
+            throw new NotFoundCustomerException();
+        if(!foundedCustomer.getPassword().equals(customer.getPassword()))
+            throw new InvalidPasswordException();
+        return foundedCustomer;
     }
 }

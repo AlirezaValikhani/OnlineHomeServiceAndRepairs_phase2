@@ -61,6 +61,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There is no category with this ID!!!");
     }
 
+
+    @ExceptionHandler(value = InvalidPasswordException.class)
+    public ResponseEntity<Object> invalidPasswordException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password or user name!!!");
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex
             ,HttpHeaders headers, HttpStatus status, WebRequest request) {

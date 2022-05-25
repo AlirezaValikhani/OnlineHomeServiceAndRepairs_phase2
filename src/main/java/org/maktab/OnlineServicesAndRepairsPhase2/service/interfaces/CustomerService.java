@@ -13,4 +13,5 @@ public interface CustomerService {
     Customer changePassword(Customer customer);
     String payment(Customer customer);
     String rating(Customer customer,Long expertId);
+    Customer login(Customer customer);
 }
