@@ -1,8 +1,5 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
-import org.dozer.DozerBeanMapper;
-import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
-import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
@@ -11,14 +8,10 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.OrderRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.OrderService;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -105,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
                 ,OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE,expert,order.getCustomer()
                 ,order.getService(),order.getOffers());
         return save(toSaveOrder);
-
     }
+
+
 }
