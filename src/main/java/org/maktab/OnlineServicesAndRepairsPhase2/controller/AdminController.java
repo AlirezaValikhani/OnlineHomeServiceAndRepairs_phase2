@@ -30,11 +30,10 @@ public class AdminController {
     }
 
     @PutMapping("/updatePassword")
-    public ResponseEntity<AdminDto> updateAdmin(@RequestBody AdminDto adminDto) {
+    public ResponseEntity<String> updateAdmin(@RequestBody AdminDto adminDto) {
         Admin admin = mapper.map(adminDto, Admin.class);
         Admin returnedAdmin = adminService.changeAdminPassword(admin);
-        AdminDto returnedAdminDto = modelMapper.map(returnedAdmin, AdminDto.class);
-        if(returnedAdmin == null) return ResponseEntity.ok(returnedAdminDto);
+        if(returnedAdmin != null) return ResponseEntity.ok("Admin password updated successfully");
         else return ResponseEntity.notFound().build();
     }
 }

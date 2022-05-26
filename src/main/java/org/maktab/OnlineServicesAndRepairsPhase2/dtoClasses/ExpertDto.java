@@ -24,11 +24,11 @@ public class ExpertDto {
     private String nationalCode;
     private String password;
     private Integer credit;
-    private Double balance;
 
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
     private MultipartFile image;
     private String city;
     private Long[] servicesId;
+    private Long walletId;
 }

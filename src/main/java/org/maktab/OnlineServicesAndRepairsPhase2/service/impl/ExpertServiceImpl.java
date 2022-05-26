@@ -7,9 +7,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundSpecialtyException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.ExpertRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.ExpertService;
 import org.springframework.stereotype.Service;
@@ -57,14 +55,16 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public Expert save(Expert expert) throws IOException {
-        Set<Specialty> servicesSet = new HashSet<>();
+       /* Set<Specialty> servicesSet = new HashSet<>();
         for (Specialty specialty : expert.getServices()) {
             Specialty foundedSpecialty = specialtyService.getById(specialty.getId());
             if(foundedSpecialty == null)
                 throw new NotFoundSpecialtyException();
             servicesSet.add(foundedSpecialty);
         }
-        expert.setServices(servicesSet);
+        Expert toSaveExpert = new Expert(expert.getFirstName(),expert.getLastName(),expert.getEmailAddress(),
+                expert.getNationalCode(),expert.getPassword(),expert.getCredit(),UserStatus.WAITING_APPROVAL,)
+        expert.setServices(servicesSet);*/
         expert.setUserType(UserType.EXPERT);
         expert.setUserStatus(UserStatus.WAITING_APPROVAL);
         return expertRepository.save(expert);
@@ -73,7 +73,7 @@ public class ExpertServiceImpl implements ExpertService {
     @Override
     public Expert changePassword(Expert expert) {
         Expert foundedExpert = expertRepository.getById(expert.getId());
-        if(foundedExpert.getNationalCode() == null)
+        if (foundedExpert.getNationalCode() == null)
             throw new NotFoundExpertException();
         foundedExpert.setPassword(expert.getPassword());
         return expertRepository.save(foundedExpert);
@@ -81,13 +81,16 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public List<Expert> waitingApprovalExperts() {
-        return expertRepository.waitingApprovalExperts();
+        List<Expert> expertList = expertRepository.waitingApprovalExperts();
+        if (expertList.size() == 0)
+            throw new NotFoundWaitingApprovalExpert();
+        return expertList;
     }
 
     @Override
     public Expert expertApproval(Long id) {
         Expert expert = expertRepository.getById(id);
-        if(expert.getNationalCode() == null)
+        if (expert.getNationalCode() == null)
             throw new NotFoundExpertException();
         expert.setUserStatus(UserStatus.ACCEPTED);
         return expert;
@@ -99,23 +102,29 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
-    public void updateProfessionalStatus(Long id) {
-        expertRepository.updateProfessionalStatus(id);
+    public String updateExpertStatus(Long id) throws Exception {
+        Expert foundedExpert = expertRepository.getById(id);
+        if (foundedExpert == null)
+            throw new NotFoundExpertException();
+        if (foundedExpert.getUserStatus().equals(UserStatus.ACCEPTED))
+            throw new AcceptedBeforeException();
+        expertRepository.updateExpertStatus(id);
+        return "Expert accepted";
     }
 
     @Override
     public String startOfWork(Order order) {
         Order foundedOrder = orderService.getById(order.getId());
-        if(foundedOrder == null)
+        if (foundedOrder == null)
             throw new NotFoundOrderException();
         foundedOrder.setOrderStatus(OrderStatus.STARTED);
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        if(foundedOrder.getOrderExecutionDate().equals(timestamp)){
+        if (foundedOrder.getOrderExecutionDate().equals(timestamp)) {
             Long currentTime = timestamp.getTime();
             Long executionTime = foundedOrder.getOrderExecutionDate().getTime();
             long result = currentTime - executionTime;
             Expert expert = getById(order.getExpert().getId());
-            if(result == 30) {
+            if (result == 30) {
                 Integer finalCredit = expert.getCredit() - 5;
                 expert.setCredit(finalCredit);
                 saveExpertObject(expert);
@@ -127,15 +136,21 @@ public class ExpertServiceImpl implements ExpertService {
     @Override
     public String done(Order order) {
         Order foundedOrder = orderService.getById(order.getId());
-        if(foundedOrder == null)
+        if (foundedOrder == null)
             throw new NotFoundOrderException();
-        order.setOrderStatus(OrderStatus.DONE);
-        orderService.save(order);
+        foundedOrder.setOrderStatus(OrderStatus.DONE);
+        orderService.save(foundedOrder);
         return "Work done";
     }
 
     @Override
     public Expert saveExpertObject(Expert expert) {
         return expertRepository.save(expert);
+    }
+
+    @Override
+    public String showExpertBalance(Long id) {
+        Expert foundedExpert = expertRepository.getById(id);
+        return "Your balance : " + foundedExpert.getWallet().getBalance();
     }
 }

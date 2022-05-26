@@ -24,11 +24,11 @@ public class CustomerDto {
     private String password;
     private Timestamp registrationDate;
     private Integer credit;
-    private Double balance;
 
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
     private Long[] orderId;
     private Long commentId;
     private Long expertId;
+    private Long walletId;
 }

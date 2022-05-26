@@ -11,6 +11,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -24,12 +25,14 @@ public class Customer extends User {
     private Set<Order> orders;
     @OneToMany(mappedBy = "customer")
     private Set<Comment> comments;
+    @OneToOne(mappedBy = "customer")
+    private Wallet wallet;
 
     public Customer(String password) {
         super(password);
     }
 
-    public Customer(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType) {
-        super(firstName, lastName, emailAddress, nationalCode, password, credit, balance, userStatus,userType);
+    public Customer(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, UserStatus userStatus, UserType userType) {
+        super(firstName, lastName, emailAddress, nationalCode, password, credit, userStatus,userType);
     }
 }

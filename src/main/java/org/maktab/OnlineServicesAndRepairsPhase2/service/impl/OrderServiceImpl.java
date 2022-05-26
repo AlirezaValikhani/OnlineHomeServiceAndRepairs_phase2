@@ -52,18 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order saveOrder(Order order) {
-        Customer customer = customerService.getById(order.getId());
-        if(customer == null)
-            throw new NotFoundCustomerException();
-        Specialty specialty = specialtyService.getById(order.getId());
-        if(specialty == null)
-            throw new NotFoundSpecialtyException();
-        if (customer.getBalance() < specialty.getBasePrice())
-            throw new NotEnoughBalanceException();
-            Order toSaveOrder = new Order(order.getBidPriceOrder(),order.getJobDescription(),order.getAddress()
-                    ,order.getOrderRegistrationDate(),order.getOrderExecutionDate()
-                    ,OrderStatus.WAITING_FOR_EXPERT_SUGGESTION,customer,specialty);
-            return save(toSaveOrder);
+            return save(order);
     }
 
     @Override
@@ -78,27 +67,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> getByCityAndService(Expert expert) {
-        Expert foundedExpert = expertService.getById(expert.getId());
-        if(foundedExpert == null)
-            throw new NotFoundExpertException();
         return orderRepository.getByCityAndServiceAndStatus(expert.getCity()
                 ,expert.getServices());
     }
 
     @Override
     public Order chooseExpertForOrder(Order order) {
-        Expert expert = expertService.getById(order.getId());
-        if(expert == null)
-            throw new NotFoundExpertException();
-        Order foundedOrder = orderRepository.getById(order.getId());
-        if(foundedOrder == null)
-            throw new NotFoundOrderException();
-        Order toSaveOrder = new Order(order.getBidPriceOrder(),order.getJobDescription(),order.getAddress()
-                ,order.getOrderRegistrationDate(),order.getOrderExecutionDate()
-                ,OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE,expert,order.getCustomer()
-                ,order.getService(),order.getOffers());
-        return save(toSaveOrder);
+        return save(order);
     }
-
-
 }

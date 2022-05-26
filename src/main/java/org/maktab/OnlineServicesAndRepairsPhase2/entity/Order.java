@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.BaseEntity;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 

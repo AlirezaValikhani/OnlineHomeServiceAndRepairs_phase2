@@ -20,8 +20,8 @@ public interface OrderRepository extends CrudRepository<Order,Long> {
     @Query("select o from Order o where o.id = :id")
     Order getById(@Param("id") Long id);
 
-    @Query("FROM Order AS o WHERE o.address = :city AND " +
-            "o.service IN (:services) AND " +
+    @Query("from Order o where o.address = :city and " +
+            "o.service in (:services) and " +
             "o.orderStatus = 'WAITING_FOR_EXPERT_SUGGESTION' OR " +
             "o.orderStatus = 'WAITING_FOR_EXPERT_SELECTION' ")
     List<Order> getByCityAndServiceAndStatus(@Param("city") String city,

@@ -2,7 +2,6 @@ package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.SpecialtyDto;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.CategoryServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceImpl;

@@ -1,33 +1,31 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
-import org.dozer.DozerBeanMapper;
-import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
-import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Iterator;
 import java.util.Set;
 
 @Service
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final WalletServiceImpl walletService;
+    private final OfferServiceImpl offerService;
     private final ExpertServiceImpl expertService;
     private final OrderServiceImpl orderService;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, ExpertServiceImpl expertService, OrderServiceImpl orderService) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, WalletServiceImpl walletService, OfferServiceImpl offerService, ExpertServiceImpl expertService, OrderServiceImpl orderService) {
         this.customerRepository = customerRepository;
+        this.walletService = walletService;
+        this.offerService = offerService;
         this.expertService = expertService;
         this.orderService = orderService;
     }
@@ -49,8 +47,13 @@ public class CustomerServiceImpl implements CustomerService {
             throw new DuplicateNationalCodeException();
         Customer toSaveCustomer = new Customer(customer.getFirstName(),customer.getLastName(),
                 customer.getEmailAddress(),customer.getNationalCode(),customer.getPassword(),customer.getCredit(),
-                customer.getBalance(),UserStatus.NEW,UserType.CUSTOMER);
-        return customerRepository.save(toSaveCustomer);
+                UserStatus.NEW,UserType.CUSTOMER);
+        Customer returnedCustomer = customerRepository.save(toSaveCustomer);
+        Wallet wallet = new Wallet(0D);
+        wallet.setCustomer(returnedCustomer);
+        walletService.save(wallet);
+        System.out.println(wallet);
+        return returnedCustomer;
     }
 
     @Override
@@ -68,20 +71,31 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public String payment(Customer customer) {
-        Order foundedOrder= customer.getOrders().stream().findFirst().get();
+    public String payment(Customer customer,Offer offer, Order order) {
+        /*Order foundedOrder= customer.getOrders().stream().findFirst().get();
         Order order = orderService.getById(foundedOrder.getId());
         if(order == null)
             throw new NotFoundOrderException();
+        Set<Offer> offerSet = order.getOffers();
+        Iterator<Offer> iter = offerSet.iterator();
+        Offer first = iter.next();
+        Offer foundedOffer = offerService.getById(first.getId());
+        if(foundedOffer == null)
+            throw new NotFoundOfferException();
         Customer foundedCustomer = customerRepository.getById(customer.getId());
         if(foundedCustomer == null)
-            throw new NotFoundCustomerException();
-        Double cost = order.getBidPriceOrder() - foundedCustomer.getBalance();
-        foundedCustomer.setBalance(cost);
-        customerRepository.save(foundedCustomer);
+            throw new NotFoundCustomerException();*/
+        Wallet wallet = walletService.getById(customer.getWallet().getId());
+        if(wallet == null)
+            throw new NotFoundWalletException("This wallet doesn't exists!!!");
+        Double cost = customer.getWallet().getBalance() - offer.getBidPriceOffer();
+        Wallet customerWallet = customer.getWallet();
+        customerWallet.setBalance(cost);
+        walletService.save(customerWallet);
+        customerRepository.save(customer);
         order.setOrderStatus(OrderStatus.PAID);
         Order returnedOrder = orderService.save(order);
-        return "Order ID : " + returnedOrder.getId() + "paid successfully";
+        return "Order ID : " + returnedOrder.getId() + " paid successfully";
     }
 
     @Override
@@ -104,5 +118,11 @@ public class CustomerServiceImpl implements CustomerService {
         if(!foundedCustomer.getPassword().equals(customer.getPassword()))
             throw new InvalidPasswordException();
         return foundedCustomer;
+    }
+
+    @Override
+    public String showCustomerBalance(Long id) {
+        Customer foundedCustomer = customerRepository.getById(id);
+        return "Your balance : " + foundedCustomer.getWallet().getBalance();
     }
 }

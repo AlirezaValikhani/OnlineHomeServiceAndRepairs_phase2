@@ -67,6 +67,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password or user name!!!");
     }
 
+
+    @ExceptionHandler(value = NotFoundWalletException.class)
+    public ResponseEntity<Object> notFoundWalletException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This wallet ID already exists!!!");
+    }
+
+
+    @ExceptionHandler(value = AcceptedBeforeException.class)
+    public ResponseEntity<Object> acceptedBeforeException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This expert had already been accepted!!!");
+    }
+
+
+    @ExceptionHandler(value = NotFoundWaitingApprovalExpert.class)
+    public ResponseEntity<Object> notFoundWaitingApprovalExpert(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There is no expert waiting for approval!!!");
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex
             ,HttpHeaders headers, HttpStatus status, WebRequest request) {

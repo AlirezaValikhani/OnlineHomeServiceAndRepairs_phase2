@@ -33,7 +33,6 @@ public class User extends BaseEntity<Long> {
     @Temporal(TemporalType.TIMESTAMP)
     private Date registrationDate;
     private Integer credit;
-    private Double balance;
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
     @Enumerated(EnumType.STRING)
@@ -62,14 +61,13 @@ public class User extends BaseEntity<Long> {
         this.password = password;
     }
 
-    public User(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType) {
+    public User(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, UserStatus userStatus, UserType userType) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.emailAddress = emailAddress;
         this.nationalCode = nationalCode;
         this.password = password;
         this.credit = credit;
-        this.balance = balance;
         this.userStatus = userStatus;
         this.userType = userType;
     }
@@ -87,7 +85,6 @@ public class User extends BaseEntity<Long> {
                 ", nationalCode='" + nationalCode + '\'' +
                 ", password='" + password + '\'' +
                 ", credit=" + credit +
-                ", balance=" + balance +
                 ", userStatus=" + userStatus;
     }
 }

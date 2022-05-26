@@ -5,6 +5,9 @@ import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceImpl;
 import org.modelmapper.ModelMapper;
@@ -16,30 +19,41 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/expert")
 public class ExpertController {
     private final ExpertServiceImpl expertService;
+    private final SpecialtyServiceImpl specialtyService;
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
 
-    public ExpertController(ExpertServiceImpl expertService) {
+    public ExpertController(ExpertServiceImpl expertService, SpecialtyServiceImpl specialtyService) {
         this.expertService = expertService;
+        this.specialtyService = specialtyService;
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
     }
 
     @PostMapping(path = "/save" , consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<ExpertDto> save(@Valid @ModelAttribute ExpertDto expertDto) throws IOException {
-        Expert expert = mapper.map(expertDto, Expert.class);
-        Expert returnedExpert = expertService.save(expert);
-        ExpertDto returnedExpertDto = modelMapper.map(returnedExpert, ExpertDto.class);
-        return new ResponseEntity<>(returnedExpertDto, HttpStatus.CREATED);
+    public ResponseEntity<String> save(@Valid @ModelAttribute ExpertDto expertDto) throws IOException {
+        Set<Specialty> specialties = new HashSet<>();
+        for (Long sId : expertDto.getServicesId()) {
+            Specialty foundedSpecialty = specialtyService.getById(sId);
+            specialties.add(foundedSpecialty);
+        }
+        Expert expert = new Expert(expertDto.getFirstName(),expertDto.getLastName(),expertDto.getEmailAddress(),
+                expertDto.getNationalCode(),expertDto.getPassword(),expertDto.getCredit(), UserStatus.WAITING_APPROVAL,
+                UserType.EXPERT,null,expertDto.getCity(),specialties);
+        expert.setImage(expertDto.getImage().getBytes());
+        expertService.save(expert);
+        return new ResponseEntity<>("Expert saved ",HttpStatus.CREATED);
     }
 
-
+//
     @PutMapping("/updatePassword")
     public ResponseEntity<ExpertDto> changePassword(@RequestBody ExpertDto expertDto) {
         Expert expert = mapper.map(expertDto, Expert.class);
@@ -64,12 +78,12 @@ public class ExpertController {
             expertDtoList.add(returnedExpertDto);
         }
         return ResponseEntity.ok(expertDtoList);
-
     }
 
     @PostMapping("/expertApproval")
-    public void expertApproval(@RequestBody ExpertDto expertDto) {
-        expertService.updateProfessionalStatus(expertDto.getId());
+    public ResponseEntity<String> expertApproval(@RequestBody ExpertDto expertDto) throws Exception {
+        String message = expertService.updateExpertStatus(expertDto.getId());
+        return ResponseEntity.ok(message);
     }
 
     @PostMapping("/startOfWork")
@@ -84,6 +98,13 @@ public class ExpertController {
         Order order = mapper.map(orderDto, Order.class);
         String message = expertService.done(order);
         return ResponseEntity.ok(message);
+    }
+
+    @GetMapping("/showExpertBalance")
+    private ResponseEntity<String> showExpertBalance(@RequestBody ExpertDto expertDto) {
+        Expert expert = mapper.map(expertDto, Expert.class);
+        String balance = expertService.showExpertBalance(expert.getId());
+        return ResponseEntity.ok(balance);
     }
 }
 

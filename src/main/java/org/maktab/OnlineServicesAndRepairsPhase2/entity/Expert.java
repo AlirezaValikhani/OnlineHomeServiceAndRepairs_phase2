@@ -33,13 +33,15 @@ public class Expert extends User {
     private Set<Specialty> services;
     @OneToMany(mappedBy = "expert")
     private Set<Comment> comments;
+    @OneToOne(mappedBy = "expert")
+    private Wallet wallet;
 
     public Expert(String password) {
         super(password);
     }
 
-    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, Double balance, UserStatus userStatus, UserType userType, byte[] image, String city, Set<Specialty> services) {
-        super(firstName, lastName, emailAddress, nationalCode, password, credit, balance, userStatus, userType);
+    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, UserStatus userStatus, UserType userType, byte[] image, String city, Set<Specialty> services) {
+        super(firstName, lastName, emailAddress, nationalCode, password, credit, userStatus, userType);
         this.image = image;
         this.city = city;
         this.services = services;

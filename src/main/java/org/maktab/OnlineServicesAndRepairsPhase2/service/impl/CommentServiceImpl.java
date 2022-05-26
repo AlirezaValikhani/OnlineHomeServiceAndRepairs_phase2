@@ -32,14 +32,8 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public Comment addComment(Comment comment) {
-        Customer customer = customerService.getById(comment.getCustomer().getId());
-        if(customer == null)
-            throw new NotFoundCustomerException();
-        Expert expert = expertService.getById(comment.getExpert().getId());
-        if(expert == null)
-            throw new NotFoundExpertException();
-        Comment toSaveComment = new Comment(comment.getComment(),customer,expert);
-        return commentRepository.save(toSaveComment);
+    public String addComment(Comment comment) {
+        Comment returnedComment = commentRepository.save(comment);
+        return "Comment added successfully";
     }
 }

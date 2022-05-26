@@ -1,16 +1,11 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
-import org.dozer.DozerBeanMapper;
-import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.SpecialtyDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Category;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCategoryException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundSpecialtyException;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.SpecialtyRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.SpecialtyService;
-import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import javax.transaction.Transactional;
 

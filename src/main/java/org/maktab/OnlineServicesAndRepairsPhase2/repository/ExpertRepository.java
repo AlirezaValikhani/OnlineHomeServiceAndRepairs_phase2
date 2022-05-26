@@ -24,5 +24,5 @@ public interface ExpertRepository extends JpaRepository<Expert,Long> {
 
     @Modifying
     @Query("update Expert e set e.userStatus = 'ACCEPTED' where e.id = :id")
-    void updateProfessionalStatus(@Param(value = "id") Long id);
+    Expert updateExpertStatus(@Param(value = "id") Long id);
 }
