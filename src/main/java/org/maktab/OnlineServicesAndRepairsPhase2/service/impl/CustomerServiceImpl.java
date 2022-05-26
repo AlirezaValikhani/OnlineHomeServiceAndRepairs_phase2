@@ -1,5 +1,7 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
+import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
@@ -7,11 +9,14 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.CustomerRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.CustomerService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -21,6 +26,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final OfferServiceImpl offerService;
     private final ExpertServiceImpl expertService;
     private final OrderServiceImpl orderService;
+    private final DozerBeanMapper mapper;
 
     public CustomerServiceImpl(CustomerRepository customerRepository, WalletServiceImpl walletService, OfferServiceImpl offerService, ExpertServiceImpl expertService, OrderServiceImpl orderService) {
         this.customerRepository = customerRepository;
@@ -28,6 +34,7 @@ public class CustomerServiceImpl implements CustomerService {
         this.offerService = offerService;
         this.expertService = expertService;
         this.orderService = orderService;
+        this.mapper = new DozerBeanMapper();
     }
 
     @Override
@@ -43,11 +50,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer save(Customer customer) {
         Customer foundedCustomer = customerRepository.findByNationalCode(customer.getNationalCode());
-        if(foundedCustomer != null)
+        if (foundedCustomer != null)
             throw new DuplicateNationalCodeException();
-        Customer toSaveCustomer = new Customer(customer.getFirstName(),customer.getLastName(),
-                customer.getEmailAddress(),customer.getNationalCode(),customer.getPassword(),customer.getCredit(),
-                UserStatus.NEW,UserType.CUSTOMER);
+        Customer toSaveCustomer = new Customer(customer.getFirstName(), customer.getLastName(),
+                customer.getEmailAddress(), customer.getNationalCode(), customer.getPassword(), customer.getCredit(),
+                UserStatus.NEW, UserType.CUSTOMER);
         Customer returnedCustomer = customerRepository.save(toSaveCustomer);
         Wallet wallet = new Wallet(0D);
         wallet.setCustomer(returnedCustomer);
@@ -64,14 +71,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer changePassword(Customer customer) {
         Customer foundedCustomer = customerRepository.getById(customer.getId());
-        if(foundedCustomer == null)
+        if (foundedCustomer == null)
             throw new NotFoundCustomerException();
         foundedCustomer.setPassword(customer.getPassword());
         return customerRepository.save(foundedCustomer);
     }
 
     @Override
-    public String payment(Customer customer,Offer offer, Order order) {
+    public String payment(Customer customer, Offer offer, Order order) {
         /*Order foundedOrder= customer.getOrders().stream().findFirst().get();
         Order order = orderService.getById(foundedOrder.getId());
         if(order == null)
@@ -86,7 +93,7 @@ public class CustomerServiceImpl implements CustomerService {
         if(foundedCustomer == null)
             throw new NotFoundCustomerException();*/
         Wallet wallet = walletService.getById(customer.getWallet().getId());
-        if(wallet == null)
+        if (wallet == null)
             throw new NotFoundWalletException("This wallet doesn't exists!!!");
         Double cost = customer.getWallet().getBalance() - offer.getBidPriceOffer();
         Wallet customerWallet = customer.getWallet();
@@ -99,9 +106,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public String rating(Customer customer,Long expertId) {
+    public String rating(Customer customer, Long expertId) {
         Expert expert = expertService.getById(expertId);
-        if(expert == null)
+        if (expert == null)
             throw new NotFoundExpertException();
         Integer previousCredit = expert.getCredit();
         expert.setCredit(customer.getCredit() + previousCredit);
@@ -113,9 +120,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer login(Customer customer) {
         Customer foundedCustomer = customerRepository.findByNationalCode(customer.getNationalCode());
-        if(foundedCustomer == null)
+        if (foundedCustomer == null)
             throw new NotFoundCustomerException();
-        if(!foundedCustomer.getPassword().equals(customer.getPassword()))
+        if (!foundedCustomer.getPassword().equals(customer.getPassword()))
             throw new InvalidPasswordException();
         return foundedCustomer;
     }
@@ -124,5 +131,33 @@ public class CustomerServiceImpl implements CustomerService {
     public String showCustomerBalance(Long id) {
         Customer foundedCustomer = customerRepository.getById(id);
         return "Your balance : " + foundedCustomer.getWallet().getBalance();
+    }
+
+    public List<Customer> filterCustomer(DynamicSearch dynamicSearch) {
+        Customer customer = mapper.map(dynamicSearch, Customer.class);
+        return customerRepository.findAll(userSpecification(customer));
+    }
+
+    private Specification<Customer> userSpecification(Customer customer) {
+        return (userRoot, query, criteriaBuilder)
+                -> {
+            CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+            criteriaQuery.select(userRoot);
+
+            List<Predicate> predicates = new ArrayList<>();
+            if (customer.getUserType() != null)
+                predicates.add(criteriaBuilder.equal(userRoot.get("userType"), customer.getUserType()));
+            if (customer.getFirstName() != null && !customer.getFirstName().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("firstName"), customer.getFirstName()));
+            if (customer.getLastName() != null && !customer.getLastName().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("lastName"), customer.getLastName()));
+            if (customer.getNationalCode() != null && !customer.getNationalCode().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("nationalCode"), customer.getNationalCode()));
+            if (customer.getEmailAddress() != null && !customer.getEmailAddress().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("emailAddress"), customer.getEmailAddress()));
+
+            criteriaQuery.where(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
     }
 }

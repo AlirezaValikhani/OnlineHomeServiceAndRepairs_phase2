@@ -1,6 +1,7 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
@@ -105,6 +106,18 @@ public class ExpertController {
         Expert expert = mapper.map(expertDto, Expert.class);
         String balance = expertService.showExpertBalance(expert.getId());
         return ResponseEntity.ok(balance);
+    }
+
+    @PostMapping(value = "/gridSearch")
+    public ResponseEntity<List<ExpertDto>> gridSearch(@ModelAttribute @RequestBody DynamicSearch dynamicSearch) {
+        List<Expert> expertList = expertService.filterExpert(dynamicSearch);
+        List<ExpertDto> dtoList = new ArrayList<>();
+        for (Expert e:expertList) {
+            ExpertDto returnedExpertDto = modelMapper.map(e, ExpertDto.class);
+            dtoList.add(returnedExpertDto);
+        }
+        System.out.println(expertList.size());
+        return ResponseEntity.ok(dtoList);
     }
 }
 

@@ -1,6 +1,7 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.controller.ExpertController;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
@@ -10,14 +11,17 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.ExpertRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.ExpertService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -152,5 +156,44 @@ public class ExpertServiceImpl implements ExpertService {
     public String showExpertBalance(Long id) {
         Expert foundedExpert = expertRepository.getById(id);
         return "Your balance : " + foundedExpert.getWallet().getBalance();
+    }
+
+    public List<Expert> filterExpert(DynamicSearch dynamicSearch) {
+        Expert expert = new Expert(dynamicSearch.getFirstName(),
+                dynamicSearch.getLastName(),
+                dynamicSearch.getEmail(), dynamicSearch.getNationalCode(), null, dynamicSearch.getCredit(), null,
+                UserType.EXPERT, null, null, null);
+        List<Expert> experts = expertRepository.findAll(userSpecification(expert));
+        if (dynamicSearch.getService() == null && dynamicSearch.getService().isEmpty())
+            return experts;
+        Specialty specialty = specialtyService.findByName(dynamicSearch.getService());
+        if (specialty == null)
+            return experts;
+        return specialty.getExperts().stream().filter(experts::contains).collect(Collectors.toList());
+    }
+
+    private Specification<Expert> userSpecification(Expert expert) {
+        return (userRoot, query, criteriaBuilder)
+                -> {
+            CriteriaQuery<Expert> criteriaQuery = criteriaBuilder.createQuery(Expert.class);
+            criteriaQuery.select(userRoot);
+
+            List<Predicate> predicates = new ArrayList<>();
+            if (expert.getUserType() != null)
+                predicates.add(criteriaBuilder.equal(userRoot.get("userType"), expert.getUserType()));
+            if (expert.getFirstName() != null && !expert.getFirstName().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("firstName"), expert.getFirstName()));
+            if (expert.getLastName() != null && !expert.getLastName().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("lastName"), expert.getLastName()));
+            if (expert.getNationalCode() != null && !expert.getNationalCode().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("nationalCode"), expert.getNationalCode()));
+            if (expert.getCredit() != null)
+                predicates.add(criteriaBuilder.equal(userRoot.get("credit"), expert.getCredit()));
+            if (expert.getEmailAddress() != null && !expert.getEmailAddress().isEmpty())
+                predicates.add(criteriaBuilder.equal(userRoot.get("emailAddress"), expert.getEmailAddress()));
+
+            criteriaQuery.where(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
     }
 }
