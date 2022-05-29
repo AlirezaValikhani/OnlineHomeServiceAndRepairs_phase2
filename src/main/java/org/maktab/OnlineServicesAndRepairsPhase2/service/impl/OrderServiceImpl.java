@@ -43,8 +43,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order findById(Order order) {
-        Order returnedOrder = orderRepository.getById(order.getId());
+    public List<Order> findById(Order order) {
+        return null;
+    }
+
+    @Override
+    public List<Order> getOrdersById(Order order) {
+        List<Order> returnedOrder = orderRepository.getOrdersById(order.getId());
         if(returnedOrder == null)
             throw new NotFoundOrderException();
         return returnedOrder;

@@ -61,10 +61,10 @@ public class OrderController {
         return new ResponseEntity<>(returnedOrderDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/findById")
+    @GetMapping("/getOrdersById")
     public ResponseEntity<OrderDto> findById(@RequestParam OrderDto orderDto) {
         Order order = mapper.map(orderDto, Order.class);
-        Order returnedOrder = orderService.findById(order);
+        List<Order> returnedOrder = orderService.getOrdersById(order);
         OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
         if (returnedOrderDto != null)
             return ResponseEntity.ok(returnedOrderDto);

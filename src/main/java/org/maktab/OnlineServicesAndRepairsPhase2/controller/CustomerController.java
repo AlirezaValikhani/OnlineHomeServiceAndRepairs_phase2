@@ -2,6 +2,7 @@ package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Offer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
@@ -17,7 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -92,5 +95,16 @@ public class CustomerController {
         Customer customer = mapper.map(customerDto, Customer.class);
         String balance = customerService.showCustomerBalance(customer.getId());
         return ResponseEntity.ok(balance);
+    }
+
+    @PostMapping(value = "/gridSearch")
+    public ResponseEntity<List<CustomerDto>> gridSearch(@ModelAttribute @RequestBody DynamicSearch dynamicSearch) {
+        List<Customer> customerList = customerService.filterCustomer(dynamicSearch);
+        List<CustomerDto> dtoList = new ArrayList<>();
+        for (Customer s:customerList
+        ) {
+            dtoList.add(mapper.map(s,CustomerDto.class));
+        }
+        return ResponseEntity.ok(dtoList);
     }
 }

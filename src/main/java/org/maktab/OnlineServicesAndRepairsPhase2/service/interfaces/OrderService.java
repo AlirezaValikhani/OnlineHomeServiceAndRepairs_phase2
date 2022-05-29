@@ -14,7 +14,8 @@ import java.util.Set;
 public interface OrderService {
     List<Order> findByCustomerId(Long customerId);
     List<Order> getByExpertSuggestion();
-    Order findById(Order order);
+    List<Order> findById(Order order);
+    List<Order> getOrdersById(Order order);
     Order saveOrder(Order order);
     Order save(Order order);
     Order getById(Long id);
