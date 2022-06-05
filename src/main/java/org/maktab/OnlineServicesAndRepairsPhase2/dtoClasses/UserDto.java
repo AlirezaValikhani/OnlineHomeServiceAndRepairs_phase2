@@ -5,21 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class AdminDto {
-    private Long id;
+public class UserDto {
     private String firstName;
     private String lastName;
-    @Column(unique = true)
-    private String nationalCode;
-    private String password;
-
-    public AdminDto(String password) {
-        this.password = password;
-    }
+    private Integer credit;
 }

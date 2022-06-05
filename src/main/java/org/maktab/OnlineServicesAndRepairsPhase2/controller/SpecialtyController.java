@@ -8,6 +8,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceIm
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class SpecialtyController {
         this.modelMapper = new ModelMapper();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/save")
     public ResponseEntity<SpecialtyDto> save(@Valid @RequestBody SpecialtyDto specialtyDto) {
         Specialty specialty = mapper.map(specialtyDto, Specialty.class);
@@ -36,6 +38,7 @@ public class SpecialtyController {
         return new ResponseEntity<>(returnedSpecialtyDto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/addCategoryToSpecialty")
     public ResponseEntity<SpecialtyDto> addCategoryToSpecialty(@RequestBody SpecialtyDto specialtyDto) {
         Specialty specialty = mapper.map(specialtyDto, Specialty.class);

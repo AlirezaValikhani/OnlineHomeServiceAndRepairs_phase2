@@ -13,6 +13,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +36,8 @@ public class CommentController {
         this.modelMapper = new ModelMapper();
     }
 
-    @PostMapping("/saveCommentAndRating")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody CommentDto commentDto) {
         Customer customer = customerService.getById(commentDto.getCustomerId());
         if(customer == null)

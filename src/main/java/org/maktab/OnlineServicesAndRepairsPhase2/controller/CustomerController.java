@@ -6,15 +6,19 @@ import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Offer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOfferException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.CustomerServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OfferServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OrderServiceImpl;
+import org.maktab.OnlineServicesAndRepairsPhase2.util.CustomPasswordEncoder;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -42,29 +46,27 @@ public class CustomerController {
 
     @PostMapping("/save")
     public ResponseEntity<String> save(@Valid @RequestBody CustomerDto customerDto) {
-        Customer customer = mapper.map(customerDto, Customer.class);
+        Customer customer = new Customer(customerDto.getFirstName(),customerDto.getLastName(),
+                customerDto.getEmailAddress(),customerDto.getNationalCode(),
+                CustomPasswordEncoder.hashPassword(customerDto.getPassword()),
+                customerDto.getBalance(),customerDto.getCredit(), UserStatus.NEW, Role.ROLE_CUSTOMER);
         Customer returnedCustomer = customerService.save(customer);
         String message = returnedCustomer.getFirstName() + " " + returnedCustomer.getLastName() +
                 " added successfully";
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<CustomerDto> login(@Valid @RequestBody CustomerDto customerDto) {
-        Customer customer = mapper.map(customerDto, Customer.class);
-        Customer returnedCustomer = customerService.login(customer);
-        CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
-        return new ResponseEntity<>(returnedCustomerDto, HttpStatus.ACCEPTED);
-    }
-
-    @PutMapping("/updatePassword")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @PatchMapping("/updatePassword")
+    @ResponseBody
     public ResponseEntity<CustomerDto> changePassword(@RequestBody CustomerDto customerDto) {
-        Customer customer = mapper.map(customerDto, Customer.class);
+        Customer customer = new Customer(CustomPasswordEncoder.hashPassword(customerDto.getPassword()));
         Customer returnedCustomer = customerService.changePassword(customer);
         CustomerDto returnedCustomerDto = modelMapper.map(returnedCustomer, CustomerDto.class);
         return ResponseEntity.ok(returnedCustomerDto);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/payment")
     public ResponseEntity<String> payment(@RequestBody CustomerDto customerDto) {
         Order order = orderService.getById(customerDto.getOrderId()[0]);
@@ -83,6 +85,7 @@ public class CustomerController {
         return ResponseEntity.ok(message);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/rating")
     public ResponseEntity<String> rating(@RequestBody CustomerDto customerDto) {
         Customer customer = mapper.map(customerDto, Customer.class);
@@ -90,6 +93,7 @@ public class CustomerController {
         return ResponseEntity.ok(message);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/showCustomerBalance")
     private ResponseEntity<String> showCustomerBalance(@RequestBody CustomerDto customerDto) {
         Customer customer = mapper.map(customerDto, Customer.class);
@@ -97,6 +101,8 @@ public class CustomerController {
         return ResponseEntity.ok(balance);
     }
 
+
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping(value = "/gridSearch")
     public ResponseEntity<List<CustomerDto>> gridSearch(@ModelAttribute @RequestBody DynamicSearch dynamicSearch) {
         List<Customer> customerList = customerService.filterCustomer(dynamicSearch);

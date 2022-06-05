@@ -1,15 +1,13 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -33,15 +31,13 @@ public class Expert extends User {
     private Set<Specialty> services;
     @OneToMany(mappedBy = "expert")
     private Set<Comment> comments;
-    @OneToOne(mappedBy = "expert")
-    private Wallet wallet;
 
     public Expert(String password) {
         super(password);
     }
 
-    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, UserStatus userStatus, UserType userType, byte[] image, String city, Set<Specialty> services) {
-        super(firstName, lastName, emailAddress, nationalCode, password, credit, userStatus, userType);
+    public Expert(String firstName, String lastName, String emailAddress, String nationalCode, String password,Double balance, Integer credit, UserStatus userStatus, Role role, byte[] image, String city, Set<Specialty> services) {
+        super(firstName, lastName, emailAddress, nationalCode, password,balance ,credit, userStatus, role);
         this.image = image;
         this.city = city;
         this.services = services;

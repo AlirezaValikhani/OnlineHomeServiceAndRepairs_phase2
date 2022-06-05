@@ -5,18 +5,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
-import java.util.Date;
+import java.util.*;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_role",discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "user_role", discriminatorType = DiscriminatorType.STRING)
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity<Long> {
@@ -27,19 +26,20 @@ public class User extends BaseEntity<Long> {
     private String emailAddress;
     @Column(unique = true)
     private String nationalCode;
-    @Size(min = 8,message = "Password should have at least 8 characters!!!")
     private String password;
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date registrationDate;
+    private Double balance;
     private Integer credit;
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
     @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private Role role;
+
     @Transient
-    public String getDiscriminatorValue(){
-        DiscriminatorValue val = this.getClass().getAnnotation( DiscriminatorValue.class );
+    public String getDiscriminatorValue() {
+        DiscriminatorValue val = this.getClass().getAnnotation(DiscriminatorValue.class);
 
         return val == null ? null : val.value();
     }
@@ -48,12 +48,12 @@ public class User extends BaseEntity<Long> {
         this.password = password;
     }
 
-    public User(String firstName, String lastName, String nationalCode, String password,UserType userType) {
+    public User(String firstName, String lastName, String nationalCode, String password, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.nationalCode = nationalCode;
         this.password = password;
-        this.userType = userType;
+        this.role = role;
     }
 
     public User(Long aLong, String password) {
@@ -61,15 +61,29 @@ public class User extends BaseEntity<Long> {
         this.password = password;
     }
 
-    public User(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, UserStatus userStatus, UserType userType) {
+    public User(String firstName, String lastName, String emailAddress, String nationalCode, String password, Double balance, Integer credit, UserStatus userStatus, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.emailAddress = emailAddress;
         this.nationalCode = nationalCode;
         this.password = password;
+        this.balance = balance;
         this.credit = credit;
         this.userStatus = userStatus;
-        this.userType = userType;
+        this.role = role;
+    }
+
+    public User(String firstName, String lastName, String emailAddress, String nationalCode, String password, Date registrationDate,Double balance, Integer credit, UserStatus userStatus, Role role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.emailAddress = emailAddress;
+        this.nationalCode = nationalCode;
+        this.password = password;
+        this.registrationDate = registrationDate;
+        this.balance = balance;
+        this.credit = credit;
+        this.userStatus = userStatus;
+        this.role = role;
     }
 
     public User(Long aLong) {

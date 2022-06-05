@@ -1,27 +1,34 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.SecurityUtil;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Admin;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.AdminRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.AdminService;
+import org.maktab.OnlineServicesAndRepairsPhase2.util.CustomPasswordEncoder;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @Transactional
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public AdminServiceImpl(AdminRepository userRepository) {
-        this.adminRepository = userRepository;
+    public AdminServiceImpl(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
+        this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -33,20 +40,18 @@ public class AdminServiceImpl implements AdminService {
     public Admin addAdminByDefault() {
         String firstName = "admin";
         String lastName = "admin";
-        String nationalCode = "admin";
-        String password = "admin1234";
-        Admin admin = new Admin(firstName, lastName, nationalCode, password, UserType.ADMIN);
+        String nationalCode = "adminadmin";
+        String password = CustomPasswordEncoder.hashPassword("admin1234");
+        Admin admin = new Admin(firstName, lastName, nationalCode, password, Role.ROLE_ADMIN);
         return adminRepository.save(admin);
     }
 
     @Override
     public Admin changeAdminPassword(Admin admin) {
-        Admin foundedAdmin = adminRepository.getById(admin.getId());
+        User user = SecurityUtil.getCurrentUser();
+        Admin foundedAdmin = adminRepository.getById(user.getId());
         foundedAdmin.setPassword(admin.getPassword());
-        Admin returnedAdmin = adminRepository.save(foundedAdmin);
-        if (returnedAdmin.getPassword().equals(admin.getPassword()))
-            return returnedAdmin;
-        else return null;
+        return adminRepository.save(foundedAdmin);
     }
 
     @Override
@@ -57,8 +62,8 @@ public class AdminServiceImpl implements AdminService {
             criteriaQuery.select(userRoot);
 
             List<Predicate> predicates = new ArrayList<>();
-            if(user.getUserType() != null )
-                predicates.add(criteriaBuilder.equal(userRoot.get("userType"),user.getUserType()));
+            if(user.getRole() != null )
+                predicates.add(criteriaBuilder.equal(userRoot.get("userType"),user.getRole()));
             if(user.getFirstName() != null && !user.getFirstName().isEmpty())
                 predicates.add(criteriaBuilder.equal(userRoot.get("firstName"),user.getFirstName()));
             if(user.getLastName() != null && !user.getLastName().isEmpty())

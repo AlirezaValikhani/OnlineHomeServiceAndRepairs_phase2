@@ -1,11 +1,13 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.CustomUserDetails;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
@@ -18,6 +20,8 @@ import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceIm
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -44,9 +48,13 @@ public class OrderController {
         this.modelMapper = new ModelMapper();
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/save")
     public ResponseEntity<OrderDto> save(@RequestBody OrderDto orderDto) {
-        Customer customer = customerService.getById(orderDto.getCustomerId());
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        User user = customerService.findByNationalCode(userDetails.getUsername());
+        Customer customer = customerService.getById(user.getId());
         if(customer == null)
             throw new NotFoundCustomerException();
         Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
@@ -61,6 +69,7 @@ public class OrderController {
         return new ResponseEntity<>(returnedOrderDto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/getOrdersById")
     public ResponseEntity<OrderDto> findById(@RequestParam OrderDto orderDto) {
         Order order = mapper.map(orderDto, Order.class);
@@ -72,6 +81,7 @@ public class OrderController {
             return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @GetMapping("/getByExpertSuggestion")
     public ResponseEntity<List<OrderDto>> getByExpertSuggestion(){
         List<Order> orders = orderService.getByExpertSuggestion();
@@ -83,6 +93,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDtoList);
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @GetMapping("/getByCityAndService")
     public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody OrderDto orderDto) {
         Expert foundedExpert = expertService.getById(orderDto.getExpertId());
@@ -97,6 +108,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDtoList);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/chooseExpertForOrder")
     public ResponseEntity<OrderDto> chooseExpertForOrder(@RequestBody OrderDto orderDto){
         Expert expert = expertService.getById(orderDto.getExpertId());
@@ -110,6 +122,18 @@ public class OrderController {
         Order returnedOrder = orderService.save(foundedOrder);
         OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
         return ResponseEntity.ok(returnedOrderDto);
+    }
+
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/findCustomerOrders")
+    public ResponseEntity<List<OrderDto>> findCustomerOrders() {
+        List<Order> returnedOrders = orderService.findByCustomerId();
+        List<OrderDto> orderDtoList = new ArrayList<>();
+        for (Order o:returnedOrders) {
+            OrderDto convertToOrderDto = modelMapper.map(o, OrderDto.class);
+            orderDtoList.add(convertToOrderDto);
+        }
+        return ResponseEntity.ok(orderDtoList);
     }
 }
 

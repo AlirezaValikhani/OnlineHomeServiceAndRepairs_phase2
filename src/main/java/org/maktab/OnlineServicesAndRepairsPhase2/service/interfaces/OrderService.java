@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface OrderService {
-    List<Order> findByCustomerId(Long customerId);
+    List<Order> findByCustomerId();
     List<Order> getByExpertSuggestion();
     List<Order> findById(Order order);
     List<Order> getOrdersById(Order order);

@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 
 @AllArgsConstructor
@@ -22,7 +23,9 @@ public class ExpertDto {
     private String lastName;
     private String emailAddress;
     private String nationalCode;
+    @Size(min = 8, message = "Password should have at least 8 characters!!!")
     private String password;
+    private Double balance;
     private Integer credit;
 
     @Enumerated(EnumType.STRING)

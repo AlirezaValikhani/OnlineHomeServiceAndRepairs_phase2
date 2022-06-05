@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -25,14 +25,12 @@ public class Customer extends User {
     private Set<Order> orders;
     @OneToMany(mappedBy = "customer")
     private Set<Comment> comments;
-    @OneToOne(mappedBy = "customer")
-    private Wallet wallet;
 
     public Customer(String password) {
         super(password);
     }
 
-    public Customer(String firstName, String lastName, String emailAddress, String nationalCode, String password, Integer credit, UserStatus userStatus, UserType userType) {
-        super(firstName, lastName, emailAddress, nationalCode, password, credit, userStatus,userType);
+    public Customer(String firstName, String lastName, String emailAddress, String nationalCode, String password,Double balance, Integer credit, UserStatus userStatus, Role role) {
+        super(firstName, lastName, emailAddress, nationalCode, password,balance, credit, userStatus, role);
     }
 }

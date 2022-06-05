@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.dozer.DozerBeanMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,6 +28,7 @@ public class CategoryController {
         this.modelMapper = new ModelMapper();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/save")
     public ResponseEntity<CategoryDto> save(@Valid @RequestBody CategoryDto categoryDto) {
         Category category = mapper.map(categoryDto, Category.class);
@@ -34,7 +36,7 @@ public class CategoryController {
         CategoryDto returnedCategoryDto = modelMapper.map(returnedCategory, CategoryDto.class);
         return new ResponseEntity<>(returnedCategoryDto, HttpStatus.CREATED);
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN','EXPERT','CUSTOMER')")
     @GetMapping("/showAllCategories")
     public ResponseEntity<List<CategoryDto>> showAllCategories() {
         List<Category> objectResult = new ArrayList<>();

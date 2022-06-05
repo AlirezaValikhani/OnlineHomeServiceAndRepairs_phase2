@@ -9,6 +9,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 
 @AllArgsConstructor
@@ -21,8 +22,10 @@ public class CustomerDto {
     private String lastName;
     private String emailAddress;
     private String nationalCode;
+    @Size(min = 8, message = "Password should have at least 8 characters!!!")
     private String password;
     private Timestamp registrationDate;
+    private Double balance;
     private Integer credit;
 
     @Enumerated(EnumType.STRING)

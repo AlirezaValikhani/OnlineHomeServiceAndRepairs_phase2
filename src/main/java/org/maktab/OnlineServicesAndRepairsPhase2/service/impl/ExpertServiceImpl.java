@@ -1,17 +1,17 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
-import org.maktab.OnlineServicesAndRepairsPhase2.controller.ExpertController;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserType;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.ExpertRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.ExpertService;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaQuery;
@@ -29,12 +29,14 @@ public class ExpertServiceImpl implements ExpertService {
     private final ExpertRepository expertRepository;
     private final SpecialtyServiceImpl specialtyService;
     private final OrderServiceImpl orderService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Integer credit = 10;
 
-    public ExpertServiceImpl(ExpertRepository expertRepository, SpecialtyServiceImpl specialtyService, OrderServiceImpl orderService) {
+    public ExpertServiceImpl(ExpertRepository expertRepository, SpecialtyServiceImpl specialtyService, OrderServiceImpl orderService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.expertRepository = expertRepository;
         this.specialtyService = specialtyService;
         this.orderService = orderService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -69,7 +71,7 @@ public class ExpertServiceImpl implements ExpertService {
         Expert toSaveExpert = new Expert(expert.getFirstName(),expert.getLastName(),expert.getEmailAddress(),
                 expert.getNationalCode(),expert.getPassword(),expert.getCredit(),UserStatus.WAITING_APPROVAL,)
         expert.setServices(servicesSet);*/
-        expert.setUserType(UserType.EXPERT);
+        expert.setRole(Role.ROLE_EXPERT);
         expert.setUserStatus(UserStatus.WAITING_APPROVAL);
         return expertRepository.save(expert);
     }
@@ -155,14 +157,14 @@ public class ExpertServiceImpl implements ExpertService {
     @Override
     public String showExpertBalance(Long id) {
         Expert foundedExpert = expertRepository.getById(id);
-        return "Your balance : " + foundedExpert.getWallet().getBalance();
+        return "Your balance : " + foundedExpert.getBalance();
     }
 
     public List<Expert> filterExpert(DynamicSearch dynamicSearch) {
         Expert expert = new Expert(dynamicSearch.getFirstName(),
                 dynamicSearch.getLastName(),
-                dynamicSearch.getEmail(), dynamicSearch.getNationalCode(), null, dynamicSearch.getCredit(), null,
-                UserType.EXPERT, null, null, null);
+                dynamicSearch.getEmail(), dynamicSearch.getNationalCode(), null,null, dynamicSearch.getCredit(), null,
+                Role.ROLE_EXPERT, null, null, null);
         List<Expert> experts = expertRepository.findAll(userSpecification(expert));
         if (dynamicSearch.getService() == null && dynamicSearch.getService().isEmpty())
             return experts;
@@ -179,8 +181,8 @@ public class ExpertServiceImpl implements ExpertService {
             criteriaQuery.select(userRoot);
 
             List<Predicate> predicates = new ArrayList<>();
-            if (expert.getUserType() != null)
-                predicates.add(criteriaBuilder.equal(userRoot.get("userType"), expert.getUserType()));
+            if (expert.getRole() != null)
+                predicates.add(criteriaBuilder.equal(userRoot.get("userType"), expert.getRole()));
             if (expert.getFirstName() != null && !expert.getFirstName().isEmpty())
                 predicates.add(criteriaBuilder.equal(userRoot.get("firstName"), expert.getFirstName()));
             if (expert.getLastName() != null && !expert.getLastName().isEmpty())

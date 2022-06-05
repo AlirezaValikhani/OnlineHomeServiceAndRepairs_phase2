@@ -1,14 +1,14 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.CustomUserDetails;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
-import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.OrderRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.OrderService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,8 +30,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findByCustomerId(Long customerId) {
-        List<Order> foundedOrderList = orderRepository.findByCustomerId(customerId);
+    public List<Order> findByCustomerId() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        User user = customerService.findByNationalCode(userDetails.getUsername());
+        List<Order> foundedOrderList = orderRepository.findByCustomerId(user.getId());
         if(foundedOrderList.size() == 0)
             throw new NotFoundOrderException();
         return foundedOrderList;

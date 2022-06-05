@@ -14,6 +14,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OrderServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class OfferController {
         this.modelMapper = new ModelMapper();
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @PostMapping("/save")
     public ResponseEntity<OfferDto> save(@RequestBody OfferDto offerDto) {
         Order order = orderService.getById(offerDto.getOrderId());
@@ -54,6 +56,7 @@ public class OfferController {
         return new ResponseEntity<>(returnedOfferDto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/findOfferListByOrderId")
     public ResponseEntity<List<OfferDto>> findOfferList(OfferDto offerDto) {
         Offer offer = mapper.map(offerDto, Offer.class);
@@ -66,6 +69,7 @@ public class OfferController {
         return ResponseEntity.ok(returnedOffers);
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping("/showOfferListByCreditAndBidPriceOffer")
     public ResponseEntity<List<OfferDto>> showOfferList(@RequestBody OfferDto offerDto) {
         Order foundedOrder = orderService.getById(offerDto.getOrderId());
