@@ -64,7 +64,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = InvalidPasswordException.class)
     public ResponseEntity<Object> invalidPasswordException(Exception ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong password or user name!!!");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("\"Password should have lowerCase + upperCase + sign + digit!\"");
     }
 
 
@@ -85,15 +85,57 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There is no expert waiting for approval!!!");
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex
-            ,HttpHeaders headers, HttpStatus status, WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errors.put(fieldName, message);
-        });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+
+    @ExceptionHandler(value = EmptyFileException.class)
+    public ResponseEntity<Object> emptyFileException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This file is empty!!!");
+    }
+
+
+    @ExceptionHandler(value = BadFileTypeException.class)
+    public ResponseEntity<Object> badFileTypeException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong file type!!!");
+    }
+
+
+    @ExceptionHandler(value = WrongFileFormat.class)
+    public ResponseEntity<Object> wrongFileFormat(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong file format!!!");
+    }
+
+
+    @ExceptionHandler(value = NotEnoughLengthException.class)
+    public ResponseEntity<Object> notEnoughLengthException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong file format!!!");
+    }
+
+
+    @ExceptionHandler(value = InvalidCardNumberException.class)
+    public ResponseEntity<Object> invalidCardNumberException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card Number must be digit!!!");
+    }
+
+
+    @ExceptionHandler(value = InvalidCvv2LengthException.class)
+    public ResponseEntity<Object> invalidCvv2LengthException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cvv2 length must be 4!!!");
+    }
+
+
+    @ExceptionHandler(value = WrongOrderException.class)
+    public ResponseEntity<Object> wrongOrderException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This order has not been completed!!!");
+    }
+
+
+    @ExceptionHandler(value = WrongPasswordLengthException.class)
+    public ResponseEntity<Object> wrongPasswordLengthException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Password length must be more than 8 characters!!!");
+    }
+
+
+    @ExceptionHandler(value = DuplicateEmailException.class)
+    public ResponseEntity<Object> duplicateEmailException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong email address!This email already exists");
     }
 }

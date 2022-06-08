@@ -1,23 +1,24 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.SecurityUtil;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.jwt.PasswordEncoderConfiguration;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.ExpertDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.UserStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.SpecialtyServiceImpl;
-import org.maktab.OnlineServicesAndRepairsPhase2.util.CustomPasswordEncoder;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,16 +31,16 @@ import java.util.Set;
 @RestController
 @RequestMapping("/expert")
 public class ExpertController {
-    private final ExpertServiceImpl expertService;
     private final SpecialtyServiceImpl specialtyService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoderConfiguration passwordEncoderConfiguration;
+    private final ExpertServiceImpl expertService;
     private final DozerBeanMapper mapper;
     private final ModelMapper modelMapper;
 
-    public ExpertController(ExpertServiceImpl expertService, SpecialtyServiceImpl specialtyService, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.expertService = expertService;
+    public ExpertController(SpecialtyServiceImpl specialtyService, PasswordEncoderConfiguration passwordEncoderConfiguration, ExpertServiceImpl expertService) {
         this.specialtyService = specialtyService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoderConfiguration = passwordEncoderConfiguration;
+        this.expertService = expertService;
         this.mapper = new DozerBeanMapper();
         this.modelMapper = new ModelMapper();
     }
@@ -52,7 +53,7 @@ public class ExpertController {
             specialties.add(foundedSpecialty);
         }
         Expert expert = new Expert(expertDto.getFirstName(),expertDto.getLastName(),expertDto.getEmailAddress(),
-                expertDto.getNationalCode(), CustomPasswordEncoder.hashPassword(expertDto.getPassword()),expertDto.getBalance(),expertDto.getCredit(), UserStatus.WAITING_APPROVAL,
+                expertDto.getNationalCode(), passwordEncoderConfiguration.passwordEncoder().encode(expertDto.getPassword()),expertDto.getBalance(),expertDto.getCredit(), UserStatus.WAITING_APPROVAL,
                 Role.ROLE_EXPERT,null,expertDto.getCity(),specialties);
         expert.setImage(expertDto.getImage().getBytes());
         expertService.save(expert);
@@ -78,7 +79,7 @@ public class ExpertController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/waitingApprovalExperts")
-    private ResponseEntity<List<ExpertDto>> waitingApprovalExperts() {
+    public ResponseEntity<List<ExpertDto>> waitingApprovalExperts() {
         List<Expert> expertList = expertService.waitingApprovalExperts();
         List<ExpertDto> expertDtoList = new ArrayList<>();
         for (Expert e : expertList) {
@@ -91,8 +92,10 @@ public class ExpertController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/expertApproval")
     public ResponseEntity<String> expertApproval(@RequestBody ExpertDto expertDto) throws Exception {
-        String message = expertService.updateExpertStatus(expertDto.getId());
-        return ResponseEntity.ok(message);
+        Expert returnedExpert = expertService.expertApproval(expertDto.getId());
+        if(returnedExpert != null)
+            return ResponseEntity.ok("Expert accepted");
+        else return null;
     }
 
     @PreAuthorize("hasRole('EXPERT')")
@@ -113,13 +116,13 @@ public class ExpertController {
 
     @PreAuthorize("hasRole('EXPERT')")
     @GetMapping("/showExpertBalance")
-    private ResponseEntity<String> showExpertBalance(@RequestBody ExpertDto expertDto) {
-        Expert expert = mapper.map(expertDto, Expert.class);
-        String balance = expertService.showExpertBalance(expert.getId());
+    public ResponseEntity<String> showExpertBalance() {
+        User user = SecurityUtil.getCurrentUser();
+        String balance = expertService.showExpertBalance(user.getId());
         return ResponseEntity.ok(balance);
     }
 
-    @PreAuthorize("hasRole('EXPERT')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/gridSearch")
     public ResponseEntity<List<ExpertDto>> gridSearch(@ModelAttribute @RequestBody DynamicSearch dynamicSearch) {
         List<Expert> expertList = expertService.filterExpert(dynamicSearch);
@@ -128,7 +131,6 @@ public class ExpertController {
             ExpertDto returnedExpertDto = modelMapper.map(e, ExpertDto.class);
             dtoList.add(returnedExpertDto);
         }
-        System.out.println(expertList.size());
         return ResponseEntity.ok(dtoList);
     }
 }

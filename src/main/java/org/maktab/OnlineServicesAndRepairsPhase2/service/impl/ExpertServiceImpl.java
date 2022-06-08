@@ -10,6 +10,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.ExpertRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.ExpertService;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -61,16 +62,6 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public Expert save(Expert expert) throws IOException {
-       /* Set<Specialty> servicesSet = new HashSet<>();
-        for (Specialty specialty : expert.getServices()) {
-            Specialty foundedSpecialty = specialtyService.getById(specialty.getId());
-            if(foundedSpecialty == null)
-                throw new NotFoundSpecialtyException();
-            servicesSet.add(foundedSpecialty);
-        }
-        Expert toSaveExpert = new Expert(expert.getFirstName(),expert.getLastName(),expert.getEmailAddress(),
-                expert.getNationalCode(),expert.getPassword(),expert.getCredit(),UserStatus.WAITING_APPROVAL,)
-        expert.setServices(servicesSet);*/
         expert.setRole(Role.ROLE_EXPERT);
         expert.setUserStatus(UserStatus.WAITING_APPROVAL);
         return expertRepository.save(expert);
@@ -87,11 +78,19 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public List<Expert> waitingApprovalExperts() {
+        List<Expert> experts = expertRepository.waitingApprovalExperts();
+        if(experts.size() == 0)
+            throw new NotFoundWaitingApprovalExpert();
+        return experts;
+    }
+
+    /*@Override
+    public List<Expert> waitingApprovalExperts() {
         List<Expert> expertList = expertRepository.waitingApprovalExperts();
         if (expertList.size() == 0)
             throw new NotFoundWaitingApprovalExpert();
         return expertList;
-    }
+    }*/
 
     @Override
     public Expert expertApproval(Long id) {
@@ -99,7 +98,7 @@ public class ExpertServiceImpl implements ExpertService {
         if (expert.getNationalCode() == null)
             throw new NotFoundExpertException();
         expert.setUserStatus(UserStatus.ACCEPTED);
-        return expert;
+        return expertRepository.save(expert);
     }
 
     @Override
@@ -160,18 +159,26 @@ public class ExpertServiceImpl implements ExpertService {
         return "Your balance : " + foundedExpert.getBalance();
     }
 
-    public List<Expert> filterExpert(DynamicSearch dynamicSearch) {
-        Expert expert = new Expert(dynamicSearch.getFirstName(),
-                dynamicSearch.getLastName(),
-                dynamicSearch.getEmail(), dynamicSearch.getNationalCode(), null,null, dynamicSearch.getCredit(), null,
-                Role.ROLE_EXPERT, null, null, null);
+    @Override
+    public List<Expert> filterExpert(DynamicSearch dynamicSearch){
+        Expert expert = new Expert(dynamicSearch.getFirstName(), dynamicSearch.getLastName(),
+                dynamicSearch.getEmail(),dynamicSearch.getNationalCode(),null,null,
+                dynamicSearch.getCredit(), null,Role.ROLE_EXPERT,null,null,null);
+
         List<Expert> experts = expertRepository.findAll(userSpecification(expert));
-        if (dynamicSearch.getService() == null && dynamicSearch.getService().isEmpty())
+        Specialty specialty;
+        if(dynamicSearch.getService() == null || dynamicSearch.getService().isEmpty()) {
             return experts;
-        Specialty specialty = specialtyService.findByName(dynamicSearch.getService());
-        if (specialty == null)
-            return experts;
-        return specialty.getExperts().stream().filter(experts::contains).collect(Collectors.toList());
+        }
+        else{
+            specialty = specialtyService.findByName(dynamicSearch.getService());
+            if(specialty == null) {
+                experts.clear();
+                return experts;
+            }
+            else
+                return specialty.getExperts().stream().filter(experts::contains).collect(Collectors.toList());
+        }
     }
 
     private Specification<Expert> userSpecification(Expert expert) {
@@ -182,7 +189,7 @@ public class ExpertServiceImpl implements ExpertService {
 
             List<Predicate> predicates = new ArrayList<>();
             if (expert.getRole() != null)
-                predicates.add(criteriaBuilder.equal(userRoot.get("userType"), expert.getRole()));
+                predicates.add(criteriaBuilder.equal(userRoot.get("role"), expert.getRole()));
             if (expert.getFirstName() != null && !expert.getFirstName().isEmpty())
                 predicates.add(criteriaBuilder.equal(userRoot.get("firstName"), expert.getFirstName()));
             if (expert.getLastName() != null && !expert.getLastName().isEmpty())

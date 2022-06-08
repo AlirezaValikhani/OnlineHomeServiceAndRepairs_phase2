@@ -18,5 +18,4 @@ public class OfferDto {
     private String durationOfWork;
     private Timestamp startTime;
     private Long orderId;
-    private Long expertId;
 }

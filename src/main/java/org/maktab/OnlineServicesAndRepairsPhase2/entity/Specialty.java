@@ -20,7 +20,6 @@ import java.util.Set;
 public class Specialty extends BaseEntity<Long> {
     @Column(unique = true)
     @NotNull
-    @Size(min = 2,message = "Specialty name should have at least 2 characters!!!")
     private String name;
     private Double basePrice;
     private String description;

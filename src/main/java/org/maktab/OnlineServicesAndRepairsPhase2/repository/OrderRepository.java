@@ -29,4 +29,7 @@ public interface OrderRepository extends CrudRepository<Order,Long> {
             "o.orderStatus = 'WAITING_FOR_EXPERT_SELECTION' ")
     List<Order> getByCityAndServiceAndStatus(@Param("city") String city,
                                              @Param("services") Set<Specialty> specialtySet);
+
+    @Query("select o from Order o where o.orderStatus = 'WAITING_FOR_EXPERT_SUGGESTION' or o.orderStatus = 'DONE'")
+    List<Order> takenOrdersAndDoneOrders();
 }

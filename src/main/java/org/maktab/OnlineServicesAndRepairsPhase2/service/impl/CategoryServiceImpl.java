@@ -18,7 +18,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
@@ -31,9 +31,9 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Category addCategory(Category category){
+    public Category addCategory(Category category) {
         Category foundedCategory = categoryRepository.findByName(category.getName());
-        if(foundedCategory != null)
+        if (foundedCategory != null)
             throw new DuplicateNameException();
         return categoryRepository.save(category);
     }

@@ -83,4 +83,11 @@ public class OrderServiceImpl implements OrderService {
     public Order chooseExpertForOrder(Order order) {
         return save(order);
     }
+
+    @Override
+    public List<Order> takenOrdersAndDoneOrders() {
+        return orderRepository.takenOrdersAndDoneOrders();
+    }
+
+
 }

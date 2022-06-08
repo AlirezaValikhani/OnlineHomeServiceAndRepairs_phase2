@@ -1,10 +1,12 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.SecurityUtil;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OfferDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Offer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
@@ -45,7 +47,8 @@ public class OfferController {
         if(order == null)
             throw new NotFoundOrderException();
         order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT_SELECTION);
-        Expert expert = expertService.getById(offerDto.getExpertId());
+        User user = SecurityUtil.getCurrentUser();
+        Expert expert = expertService.getById(user.getId());
         if(expert == null)
             throw new NotFoundExpertException();
         Offer offer = new Offer(offerDto.getDateAndTimeOfBidSubmission(),

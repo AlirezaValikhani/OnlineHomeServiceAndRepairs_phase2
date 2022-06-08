@@ -2,6 +2,7 @@ package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
 import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.CustomUserDetails;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.SecurityUtil;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
@@ -9,10 +10,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Specialty;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundCustomerException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundExpertException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundOrderException;
-import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.NotFoundSpecialtyException;
+import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.CustomerServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.ExpertServiceImpl;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.impl.OrderServiceImpl;
@@ -51,19 +49,17 @@ public class OrderController {
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/save")
     public ResponseEntity<OrderDto> save(@RequestBody OrderDto orderDto) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        User user = customerService.findByNationalCode(userDetails.getUsername());
+        User user = SecurityUtil.getCurrentUser();
         Customer customer = customerService.getById(user.getId());
-        if(customer == null)
+        if (customer == null)
             throw new NotFoundCustomerException();
         Specialty specialty = specialtyService.getById(orderDto.getSpecialtyId());
-        if(specialty == null)
+        if (specialty == null)
             throw new NotFoundSpecialtyException();
-        Order order = new Order(orderDto.getBidPriceOrder(),orderDto.getJobDescription(),
-                orderDto.getAddress(),orderDto.getOrderRegistrationDate(),
+        Order order = new Order(orderDto.getBidPriceOrder(), orderDto.getJobDescription(),
+                orderDto.getAddress(), orderDto.getOrderRegistrationDate(),
                 orderDto.getOrderExecutionDate(), OrderStatus.WAITING_FOR_EXPERT_SUGGESTION,
-                customer,specialty);
+                customer, specialty);
         Order returnedOrder = orderService.saveOrder(order);
         OrderDto returnedOrderDto = modelMapper.map(returnedOrder, OrderDto.class);
         return new ResponseEntity<>(returnedOrderDto, HttpStatus.CREATED);
@@ -83,10 +79,10 @@ public class OrderController {
 
     @PreAuthorize("hasRole('EXPERT')")
     @GetMapping("/getByExpertSuggestion")
-    public ResponseEntity<List<OrderDto>> getByExpertSuggestion(){
+    public ResponseEntity<List<OrderDto>> getByExpertSuggestion() {
         List<Order> orders = orderService.getByExpertSuggestion();
         List<OrderDto> orderDtoList = new ArrayList<>();
-        for (Order o:orders) {
+        for (Order o : orders) {
             OrderDto orderDto = modelMapper.map(o, OrderDto.class);
             orderDtoList.add(orderDto);
         }
@@ -95,13 +91,14 @@ public class OrderController {
 
     @PreAuthorize("hasRole('EXPERT')")
     @GetMapping("/getByCityAndService")
-    public ResponseEntity<List<OrderDto>> getByCityAndService(@RequestBody OrderDto orderDto) {
-        Expert foundedExpert = expertService.getById(orderDto.getExpertId());
-        if(foundedExpert == null)
+    public ResponseEntity<List<OrderDto>> getByCityAndService() {
+        User user = SecurityUtil.getCurrentUser();
+        Expert foundedExpert = expertService.getById(user.getId());
+        if (foundedExpert == null)
             throw new NotFoundExpertException();
         List<Order> returnedOrders = orderService.getByCityAndService(foundedExpert);
         List<OrderDto> orderDtoList = new ArrayList<>();
-        for (Order o:returnedOrders) {
+        for (Order o : returnedOrders) {
             OrderDto convertToOrderDto = modelMapper.map(o, OrderDto.class);
             orderDtoList.add(convertToOrderDto);
         }
@@ -110,12 +107,12 @@ public class OrderController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/chooseExpertForOrder")
-    public ResponseEntity<OrderDto> chooseExpertForOrder(@RequestBody OrderDto orderDto){
+    public ResponseEntity<OrderDto> chooseExpertForOrder(@RequestBody OrderDto orderDto) {
         Expert expert = expertService.getById(orderDto.getExpertId());
-        if(expert == null)
+        if (expert == null)
             throw new NotFoundExpertException();
         Order foundedOrder = orderService.getById(orderDto.getId());
-        if(foundedOrder == null)
+        if (foundedOrder == null)
             throw new NotFoundOrderException();
         foundedOrder.setExpert(expert);
         foundedOrder.setOrderStatus(OrderStatus.WAITING_FOR_THE_SPECIALIST_TO_COME_TO_YOUR_PLACE);
@@ -129,7 +126,19 @@ public class OrderController {
     public ResponseEntity<List<OrderDto>> findCustomerOrders() {
         List<Order> returnedOrders = orderService.findByCustomerId();
         List<OrderDto> orderDtoList = new ArrayList<>();
-        for (Order o:returnedOrders) {
+        for (Order o : returnedOrders) {
+            OrderDto convertToOrderDto = modelMapper.map(o, OrderDto.class);
+            orderDtoList.add(convertToOrderDto);
+        }
+        return ResponseEntity.ok(orderDtoList);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/takenOrdersAndDoneOrders")
+    public ResponseEntity<List<OrderDto>> takenOrdersAndDoneOrders() {
+        List<Order> returnedOrders = orderService.takenOrdersAndDoneOrders();
+        List<OrderDto> orderDtoList = new ArrayList<>();
+        for (Order o : returnedOrders) {
             OrderDto convertToOrderDto = modelMapper.map(o, OrderDto.class);
             orderDtoList.add(convertToOrderDto);
         }

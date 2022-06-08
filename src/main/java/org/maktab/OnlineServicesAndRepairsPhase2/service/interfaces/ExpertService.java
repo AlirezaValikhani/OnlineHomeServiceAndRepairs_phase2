@@ -1,5 +1,6 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces;
 
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.springframework.http.ResponseEntity;
@@ -23,4 +24,5 @@ public interface ExpertService {
     String done(Order order);
     Expert saveExpertObject(Expert expert);
     String showExpertBalance(Long id);
+    List<Expert> filterExpert(DynamicSearch dynamicSearch);
 }

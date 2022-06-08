@@ -18,7 +18,6 @@ import java.util.Set;
 public class Category extends BaseEntity<Long> {
     @Column(unique = true)
     @NotNull
-    @Size(min = 2,message = "Category name should have at least 2 characters!!!")
     private String name;
     @OneToOne
     private Category superCategory;

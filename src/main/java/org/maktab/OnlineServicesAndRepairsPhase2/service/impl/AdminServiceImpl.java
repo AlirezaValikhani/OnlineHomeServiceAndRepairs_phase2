@@ -1,14 +1,13 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.impl;
 
 import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.SecurityUtil;
+import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.jwt.PasswordEncoderConfiguration;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Admin;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.Role;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.AdminRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.AdminService;
-import org.maktab.OnlineServicesAndRepairsPhase2.util.CustomPasswordEncoder;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -24,11 +22,13 @@ import java.util.List;
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderConfiguration passwordEncoderConfiguration;
 
 
-    public AdminServiceImpl(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
+    public AdminServiceImpl(AdminRepository adminRepository, PasswordEncoder passwordEncoder, PasswordEncoderConfiguration passwordEncoderConfiguration) {
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.passwordEncoderConfiguration = passwordEncoderConfiguration;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AdminServiceImpl implements AdminService {
         String firstName = "admin";
         String lastName = "admin";
         String nationalCode = "adminadmin";
-        String password = CustomPasswordEncoder.hashPassword("admin1234");
+        String password = passwordEncoderConfiguration.passwordEncoder().encode("admin1234");
         Admin admin = new Admin(firstName, lastName, nationalCode, password, Role.ROLE_ADMIN);
         return adminRepository.save(admin);
     }

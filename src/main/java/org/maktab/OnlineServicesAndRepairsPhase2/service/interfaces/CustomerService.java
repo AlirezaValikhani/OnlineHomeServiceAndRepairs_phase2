@@ -1,9 +1,9 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces;
 
-import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
-import org.springframework.http.ResponseEntity;
+
+import java.sql.Timestamp;
 
 public interface CustomerService {
     User findByNationalCode(String nationalCode);
@@ -11,8 +11,8 @@ public interface CustomerService {
     Customer save(Customer customer);
     Customer getById(Long id);
     Customer changePassword(Customer customer);
-    String payment(Customer customer, Offer offer, Order order);
+    String offlinePayment(Customer customer, Offer offer, Order order);
+    String onlinePayment(Long offerId,Long orderId,String cardNumber, String Cvv2, Timestamp expirationDate, String secondPassword);
     String rating(Customer customer,Long expertId);
-    String login(Customer customer);
     String showCustomerBalance(Long id);
 }
