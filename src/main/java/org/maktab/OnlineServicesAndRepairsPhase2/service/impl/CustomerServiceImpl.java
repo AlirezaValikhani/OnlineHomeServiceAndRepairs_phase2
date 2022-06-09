@@ -82,7 +82,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public String offlinePayment(Customer customer, Offer offer, Order order) {
         if (customer.getBalance() >= offer.getBidPriceOffer()) {
-            Double cost = customer.getBalance() - offer.getBidPriceOffer();
+            double cost = customer.getBalance() - offer.getBidPriceOffer();
             customer.setBalance(cost);
             customerRepository.save(customer);
             Double expertFee = cost * 0.7;

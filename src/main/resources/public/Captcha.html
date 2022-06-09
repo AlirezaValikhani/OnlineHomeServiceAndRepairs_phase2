@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script crossorigin="anonymous"
+            integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" src="https://code.jquery.com/jquery-3.6.0.slim.js"></script>
+</head>
+<body onload="getCaptcha()">
+    <table style="border: 2px solid black;">
+            <tr>
+                <td>
+                    Captcha
+                </td>
+                <td>
+                    <canvas width="220" height="60" style="border: 2px solid gray;" id="canvas"></canvas>
+                </td>
+            </tr>
+        <tr>
+            <td>
+                <button type="button" onclick="getCaptcha()">Refresh</button>
+            </td>
+        </tr>
+        <tr>
+            <td>Enter Captcha</td>
+            <td>
+                <input type="text" size="30" id="typeText">
+            </td>
+            <td><button onclick="checkIt()">Check</button></td>
+        </tr>
+    </table>
+    <script>
+        function getRandIndex(maxLength){
+            return Math.floor(Math.random()*maxLength);
+        }
+        let data;
+
+        function getCaptcha(){
+            let canvas = document.getElementById('canvas');
+            let pen = canvas.getContext('2d');
+            let captcha = Math.random().toString(36).substring(2,10);
+            pen.font = "30px Georgia";
+            pen.fillStyle = "grey";
+            pen.fillRect(0,0,400,400);
+            let maxLength = captcha.length;
+            let index1 = getRandIndex(maxLength);
+            let index2 = getRandIndex((maxLength));
+            captcha = captcha.substring(0,index1-1)+captcha[index1].toString()+captcha.substring(index1+1,maxLength);
+            captcha = captcha.substring(0,index2-1)+captcha[index2].toString()+captcha.substring(index2+2,maxLength);
+            data = captcha;
+            captcha = captcha.split('').join(' ');
+            pen.fillText(captcha,40,40)
+        }
+
+        function checkIt(){
+            let typeData = document.getElementById('typeText');
+            if(typeData===data){
+                alert('correct');
+                getCaptcha();
+                document.getElementById('typeText').value = "";
+            }
+            else {
+                alert("Incorrect");
+                getCaptcha();
+            }
+        }
+    </script>
+</body>
+</html>

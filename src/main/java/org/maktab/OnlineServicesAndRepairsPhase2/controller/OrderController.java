@@ -1,8 +1,8 @@
 package org.maktab.OnlineServicesAndRepairsPhase2.controller;
 
 import org.dozer.DozerBeanMapper;
-import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.CustomUserDetails;
 import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.SecurityUtil;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderBasedOnTimePeriodDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OrderDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
@@ -19,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -141,6 +140,22 @@ public class OrderController {
         for (Order o : returnedOrders) {
             OrderDto convertToOrderDto = modelMapper.map(o, OrderDto.class);
             orderDtoList.add(convertToOrderDto);
+        }
+        return ResponseEntity.ok(orderDtoList);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/BasedOnTimePeriodAndOrderStatusAndServiceName")
+    public ResponseEntity<List<OrderDto>> BasedOnTimePeriodAndOrderStatusAndServiceName(@RequestBody OrderBasedOnTimePeriodDto orderBasedOnTimePeriodDto) {
+        List<Order> orders = orderService.BasedOnTimePeriodAndOrderStatusAndServiceName(
+                orderBasedOnTimePeriodDto.getFirstDate(),orderBasedOnTimePeriodDto.getSecondDate(),
+                orderBasedOnTimePeriodDto.getOrderStatus(),orderBasedOnTimePeriodDto.getSpecialtyName());
+        if (orders.size() == 0)
+            throw new NotFoundOrderException();
+        List<OrderDto> orderDtoList = new ArrayList<>();
+        for (Order o:orders) {
+            OrderDto returnedOrderDto = modelMapper.map(o, OrderDto.class);
+            orderDtoList.add(returnedOrderDto);
         }
         return ResponseEntity.ok(orderDtoList);
     }

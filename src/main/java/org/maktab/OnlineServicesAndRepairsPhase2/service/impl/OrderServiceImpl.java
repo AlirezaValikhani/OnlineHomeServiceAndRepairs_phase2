@@ -4,6 +4,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.CustomUs
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Expert;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.base.User;
+import org.maktab.OnlineServicesAndRepairsPhase2.entity.enums.OrderStatus;
 import org.maktab.OnlineServicesAndRepairsPhase2.exceptions.*;
 import org.maktab.OnlineServicesAndRepairsPhase2.repository.OrderRepository;
 import org.maktab.OnlineServicesAndRepairsPhase2.service.interfaces.OrderService;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -89,5 +91,9 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.takenOrdersAndDoneOrders();
     }
 
-
+    @Override
+    public List<Order> BasedOnTimePeriodAndOrderStatusAndServiceName(Timestamp firstDate, Timestamp secondDate,
+                                                                     OrderStatus orderStatus, String specialtyName) {
+        return orderRepository.BasedOnTimePeriodAndOrderStatusAndServiceName(firstDate,secondDate,orderStatus,specialtyName);
+    }
 }
