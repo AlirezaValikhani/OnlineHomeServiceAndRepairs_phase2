@@ -36,6 +36,7 @@ public class User extends BaseEntity<Long> {
     private UserStatus userStatus;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private boolean isEnabled;
 
     @Transient
     public String getDiscriminatorValue() {

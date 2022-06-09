@@ -43,12 +43,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginResponseDto loginRequest(LoginRequestDto loginRequestDto) {
-        /*customAuthenticationProvider
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getNationalCode(),loginRequestDto.getPassword()));
-        UserDetails userDetails = customUserDetailService.loadUserByUsername(loginRequestDto.getNationalCode());
-        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
-        return new LoginResponseDto(
-                new UserDto(customUserDetails.getUser().getFirstName(),customUserDetails.getUser().getLastName(),customUserDetails.getUser().getCredit()));*/
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getNationalCode(), loginRequestDto.getPassword()));
         UserDetails userDetails = customUserDetailService.loadUserByUsername(loginRequestDto.getNationalCode());
         String token = jwtUtil.generateToken(userDetails);

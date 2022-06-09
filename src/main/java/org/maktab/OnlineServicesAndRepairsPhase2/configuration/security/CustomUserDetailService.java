@@ -24,10 +24,7 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String nationalCode) throws UsernameNotFoundException {
         User user = userService.findByNationalCodeReturnObj(nationalCode);
-        /*String loggingUserType = request.getHeader("role");*/
         if (user != null) {
-            /*if(!loggingUserType.equals(user.getRole().name()))
-                throw new WrongCredentialsException("Username or password is incorrect!!!");*/
             return new CustomUserDetails(user);
         } else {
             throw new WrongCredentialsException("Username or password is incorrect!");

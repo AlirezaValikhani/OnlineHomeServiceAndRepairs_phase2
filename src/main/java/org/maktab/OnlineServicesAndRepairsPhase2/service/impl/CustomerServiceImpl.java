@@ -82,12 +82,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public String offlinePayment(Customer customer, Offer offer, Order order) {
         if (customer.getBalance() >= offer.getBidPriceOffer()) {
-            double cost = customer.getBalance() - offer.getBidPriceOffer();
-            customer.setBalance(cost);
+            double newBalance = customer.getBalance() - offer.getBidPriceOffer();
+            customer.setBalance(newBalance);
             customerRepository.save(customer);
-            Double expertFee = cost * 0.7;
+            Double expertFee = offer.getBidPriceOffer() * 0.7;
             Expert expert = order.getExpert();
-            expert.setBalance(expertFee);
+            expert.setBalance(expert.getBalance() + expertFee);
             expertService.saveExpertObject(expert);
             order.setOrderStatus(OrderStatus.PAID);
             Order returnedOrder = orderService.save(order);
@@ -106,6 +106,8 @@ public class CustomerServiceImpl implements CustomerService {
         Double amount = expert.getBalance() + priceOrder;
         expert.setBalance(amount);
         expertService.saveExpertObject(expert);
+        order.setOrderStatus(OrderStatus.PAID);
+        orderService.save(order);
         return "The payment was successful for the expert";
     }
 

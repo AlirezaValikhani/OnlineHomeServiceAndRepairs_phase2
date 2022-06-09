@@ -6,6 +6,7 @@ import org.maktab.OnlineServicesAndRepairsPhase2.configuration.security.jwt.Pass
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.CustomerDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.DynamicSearch;
 import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.OnlinePaymentDto;
+import org.maktab.OnlineServicesAndRepairsPhase2.dtoClasses.PaymentDto;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Customer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Offer;
 import org.maktab.OnlineServicesAndRepairsPhase2.entity.Order;
@@ -72,18 +73,14 @@ public class CustomerController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/payment")
-    public ResponseEntity<String> payment(@RequestBody CustomerDto customerDto) {
-        Order order = orderService.getById(customerDto.getOrderId());
+    public ResponseEntity<String> payment(@RequestBody PaymentDto paymentDto) {
+        Order order = orderService.getById(paymentDto.getOrderId());
         if(order == null)
             throw new NotFoundOrderException();
-        Set<Offer> offerSet = order.getOffers();
-        Iterator<Offer> iter = offerSet.iterator();
-        Offer first = iter.next();
+        Offer offer = offerService.getById(paymentDto.getOfferId());
         User user = SecurityUtil.getCurrentUser();
         Customer foundedCustomer = customerService.getById(user.getId());
-        if(foundedCustomer == null)
-            throw new NotFoundCustomerException();
-        String message = customerService.offlinePayment(foundedCustomer,first,order);
+        String message = customerService.offlinePayment(foundedCustomer,offer,order);
         return ResponseEntity.ok(message);
     }
 

@@ -94,6 +94,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> BasedOnTimePeriodAndOrderStatusAndServiceName(Timestamp firstDate, Timestamp secondDate,
                                                                      OrderStatus orderStatus, String specialtyName) {
-        return orderRepository.BasedOnTimePeriodAndOrderStatusAndServiceName(firstDate,secondDate,orderStatus,specialtyName);
+        return orderRepository.basedOnTimePeriodAndOrderStatusAndServiceName(firstDate,secondDate,orderStatus,specialtyName);
     }
 }

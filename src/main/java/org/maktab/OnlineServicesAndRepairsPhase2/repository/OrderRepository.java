@@ -38,8 +38,8 @@ public interface OrderRepository extends CrudRepository<Order,Long> {
 
     @Query("select o from Order o where (o.orderRegistrationDate between :firstDate and :secondDate) " +
             "and o.orderStatus = :orderStatus and o.service.name = :specialtyName")
-    List<Order> BasedOnTimePeriodAndOrderStatusAndServiceName(@Param("firstDate") Timestamp firstDate,
+    List<Order> basedOnTimePeriodAndOrderStatusAndServiceName(@Param("firstDate") Timestamp firstDate,
                                                               @Param("secondDate") Timestamp secondDate,
-                                                              @Param("orderStatus")OrderStatus orderStatus,
+                                                              @Param("orderStatus") OrderStatus orderStatus,
                                                               @Param("specialtyName") String specialtyName);
 }
